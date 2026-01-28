@@ -21,13 +21,19 @@ const sidebarItems = [
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
 
-const adCategories = ["All Ads", "Featured", "High Reward", "Quick Watch", "New"];
+const adCategories = [
+  { label: "Exclusives", icon: "💎" },
+  { label: "Ad's Hub", icon: "🎯" },
+  { label: "Payouts", icon: "💸", badge: "⭐" },
+  { label: "Status", icon: "👑" },
+  { label: "Events", icon: "🎉" },
+];
 
 export default function Dashboard() {
   const { user, isLoading: isUserLoading } = useAuth();
   const { data: ads, isLoading: isAdsLoading } = useAds();
   const { mutate: clickAd, isPending: isClicking } = useClickAd();
-  const [activeCategory, setActiveCategory] = useState("All Ads");
+  const [activeCategory, setActiveCategory] = useState("Exclusives");
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const [, setLocation] = useLocation();
 
@@ -150,24 +156,26 @@ export default function Dashboard() {
             </div>
             
             {/* Category Tabs */}
-            <div className="flex items-center gap-2">
-              {adCategories.slice(0, 4).map((cat, i) => (
+            <div className="flex items-center gap-2 flex-wrap">
+              {adCategories.map((cat, i) => (
                 <motion.button
-                  key={cat}
+                  key={cat.label}
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 * i }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setActiveCategory(cat)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                    activeCategory === cat
+                  onClick={() => setActiveCategory(cat.label)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-1.5 ${
+                    activeCategory === cat.label
                       ? "bg-white text-black"
                       : "bg-zinc-800/50 text-zinc-400 hover:bg-zinc-800 hover:text-white"
                   }`}
-                  data-testid={`tab-${cat.toLowerCase().replace(' ', '-')}`}
+                  data-testid={`tab-${cat.label.toLowerCase().replace(/[' ]/g, '-')}`}
                 >
-                  {cat}
+                  <span>{cat.icon}</span>
+                  <span>{cat.label}</span>
+                  {cat.badge && <span className="ml-0.5">{cat.badge}</span>}
                 </motion.button>
               ))}
             </div>
