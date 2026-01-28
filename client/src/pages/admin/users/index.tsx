@@ -24,7 +24,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { MoreHorizontal, Search, UserCheck, UserX, Shield, Eye } from "lucide-react";
+import { MoreHorizontal, Search, UserCheck, UserX, Shield, Eye, ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 
 export default function AdminAllUsers() {
@@ -55,9 +55,15 @@ export default function AdminAllUsers() {
 
   return (
     <AdminLayout>
-      <div className="flex items-center justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">All Users</h1>
+      <div className="space-y-6">
+        <Link href="/admin" className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors" data-testid="link-back-admin">
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to Dashboard</span>
+        </Link>
+
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold">All Users</h1>
           <p className="text-muted-foreground">Manage all registered users</p>
         </div>
         <div className="relative w-64">
@@ -177,6 +183,7 @@ export default function AdminAllUsers() {
           </Table>
         </CardContent>
       </Card>
+      </div>
     </AdminLayout>
   );
 }

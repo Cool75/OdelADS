@@ -15,7 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useState } from "react";
-import { Users, Search, Eye } from "lucide-react";
+import { Users, Search, Eye, ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 
 export default function AdminTransactionUsers() {
@@ -37,18 +37,24 @@ export default function AdminTransactionUsers() {
 
   return (
     <AdminLayout>
-      <div className="flex items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center">
-            <Users className="h-6 w-6 text-blue-500" />
+      <div className="space-y-6">
+        <Link href="/admin" className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors" data-testid="link-back-admin">
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to Dashboard</span>
+        </Link>
+
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center">
+              <Users className="h-6 w-6 text-blue-500" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold">User Transactions</h1>
+              <p className="text-muted-foreground">
+                Total Balance: LKR {totalBalance.toFixed(2)}
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold">User Transactions</h1>
-            <p className="text-muted-foreground">
-              Total Balance: LKR {totalBalance.toFixed(2)}
-            </p>
-          </div>
-        </div>
         <div className="relative w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -133,6 +139,7 @@ export default function AdminTransactionUsers() {
           </Table>
         </CardContent>
       </Card>
+      </div>
     </AdminLayout>
   );
 }

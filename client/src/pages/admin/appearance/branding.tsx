@@ -9,7 +9,8 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Settings, Save, Image } from "lucide-react";
+import { Settings, Save, Image, ArrowLeft } from "lucide-react";
+import { Link } from "wouter";
 
 export default function AdminBranding() {
   const { user } = useAuth();
@@ -55,15 +56,21 @@ export default function AdminBranding() {
 
   return (
     <AdminLayout>
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 rounded-lg bg-orange-500/20 flex items-center justify-center">
-          <Settings className="h-6 w-6 text-orange-500" />
+      <div className="space-y-6">
+        <Link href="/admin" className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors" data-testid="link-back-admin">
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to Dashboard</span>
+        </Link>
+
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-lg bg-orange-500/20 flex items-center justify-center">
+            <Settings className="h-6 w-6 text-orange-500" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">Logo & Branding</h1>
+            <p className="text-muted-foreground">Customize your site's identity</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold">Logo & Branding</h1>
-          <p className="text-muted-foreground">Customize your site's identity</p>
-        </div>
-      </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
@@ -160,6 +167,7 @@ export default function AdminBranding() {
             </div>
           </CardContent>
         </Card>
+      </div>
       </div>
     </AdminLayout>
   );

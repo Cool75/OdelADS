@@ -11,7 +11,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
-import { FileText } from "lucide-react";
+import { FileText, ArrowLeft } from "lucide-react";
+import { Link } from "wouter";
 
 interface AdClick {
   id: number;
@@ -34,15 +35,21 @@ export default function AdminTransactionDetails() {
 
   return (
     <AdminLayout>
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center">
-          <FileText className="h-6 w-6 text-blue-500" />
+      <div className="space-y-6">
+        <Link href="/admin" className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors" data-testid="link-back-admin">
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to Dashboard</span>
+        </Link>
+
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center">
+            <FileText className="h-6 w-6 text-blue-500" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">Transaction Details</h1>
+            <p className="text-muted-foreground">{transactions?.length || 0} total ad click transactions</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold">Transaction Details</h1>
-          <p className="text-muted-foreground">{transactions?.length || 0} total ad click transactions</p>
-        </div>
-      </div>
 
       <Card>
         <CardContent className="p-0">
@@ -90,6 +97,7 @@ export default function AdminTransactionDetails() {
           </Table>
         </CardContent>
       </Card>
+      </div>
     </AdminLayout>
   );
 }

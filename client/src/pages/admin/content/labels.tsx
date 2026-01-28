@@ -8,7 +8,8 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Type, Save } from "lucide-react";
+import { Type, Save, ArrowLeft } from "lucide-react";
+import { Link } from "wouter";
 
 export default function AdminLabels() {
   const { user } = useAuth();
@@ -58,15 +59,21 @@ export default function AdminLabels() {
 
   return (
     <AdminLayout>
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 rounded-lg bg-violet-500/20 flex items-center justify-center">
-          <Type className="h-6 w-6 text-violet-500" />
+      <div className="space-y-6">
+        <Link href="/admin" className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors" data-testid="link-back-admin">
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to Dashboard</span>
+        </Link>
+
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-lg bg-violet-500/20 flex items-center justify-center">
+            <Type className="h-6 w-6 text-violet-500" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">Text & Labels</h1>
+            <p className="text-muted-foreground">Customize button text and labels across the site</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold">Text & Labels</h1>
-          <p className="text-muted-foreground">Customize button text and labels across the site</p>
-        </div>
-      </div>
 
       <Card>
         <CardHeader>
@@ -160,6 +167,7 @@ export default function AdminLabels() {
         <Save className="mr-2 h-4 w-4" />
         Save Labels
       </Button>
+      </div>
     </AdminLayout>
   );
 }

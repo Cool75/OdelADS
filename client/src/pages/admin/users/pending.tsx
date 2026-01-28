@@ -16,7 +16,8 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { UserCheck, UserX, Clock } from "lucide-react";
+import { UserCheck, UserX, Clock, ArrowLeft } from "lucide-react";
+import { Link } from "wouter";
 
 export default function AdminPendingUsers() {
   const { user } = useAuth();
@@ -25,10 +26,7 @@ export default function AdminPendingUsers() {
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ userId, status }: { userId: string; status: string }) => {
-      return apiRequest(`/api/users/${userId}/status`, {
-        method: "PATCH",
-        body: JSON.stringify({ status })
-      });
+      return apiRequest("PATCH", `/api/users/${userId}/status`, { status });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
@@ -44,15 +42,21 @@ export default function AdminPendingUsers() {
 
   return (
     <AdminLayout>
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 rounded-lg bg-amber-500/20 flex items-center justify-center">
-          <Clock className="h-6 w-6 text-amber-500" />
+      <div className="space-y-6">
+        <Link href="/admin" className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors" data-testid="link-back-admin">
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to Dashboard</span>
+        </Link>
+
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-lg bg-amber-500/20 flex items-center justify-center">
+            <Clock className="h-6 w-6 text-amber-500" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">Pending Users</h1>
+            <p className="text-muted-foreground">{pendingUsers.length} users awaiting approval</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold">Pending Users</h1>
-          <p className="text-muted-foreground">{pendingUsers.length} users awaiting approval</p>
-        </div>
-      </div>
 
       <Card>
         <CardContent className="p-0">
@@ -128,6 +132,7 @@ export default function AdminPendingUsers() {
           </Table>
         </CardContent>
       </Card>
+      </div>
     </AdminLayout>
   );
 }
