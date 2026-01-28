@@ -1,21 +1,23 @@
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Eye, ExternalLink, Target, CheckCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, Eye, Target, CheckCircle, Check } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
 import { useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Ad } from "@shared/schema";
+
+type AdState = "ready" | "viewing" | "confirm" | "completing";
 
 export default function AdsHubPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const [clickingAd, setClickingAd] = useState(false);
+  const [adState, setAdState] = useState<AdState>("ready");
 
   const { data: ads = [], isLoading: adsLoading } = useQuery<Ad[]>({
     queryKey: ["/api/ads"],
@@ -32,7 +34,7 @@ export default function AdsHubPage() {
         title: "Ad Completed!",
         description: `You earned LKR ${data.earned?.toFixed(2) || "0.00"}`,
       });
-      setClickingAd(false);
+      setAdState("ready");
     },
     onError: (error: any) => {
       toast({
@@ -40,9 +42,18 @@ export default function AdsHubPage() {
         description: error.message || "Failed to process ad click",
         variant: "destructive",
       });
-      setClickingAd(false);
+      setAdState("ready");
     },
   });
+
+  useEffect(() => {
+    if (adState === "viewing") {
+      const timer = setTimeout(() => {
+        setAdState("confirm");
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [adState]);
 
   if (authLoading || adsLoading) {
     return (
@@ -62,18 +73,20 @@ export default function AdsHubPage() {
   const currentAd = activeAds[currentAdIndex];
   const allAdsCompleted = totalAdsCompleted >= TOTAL_ADS_REQUIRED || currentAdIndex >= activeAds.length;
 
-  const handleViewAd = async () => {
-    if (!currentAd || clickingAd) return;
-    
-    setClickingAd(true);
+  const handleViewAd = () => {
+    if (!currentAd || adState !== "ready") return;
     
     if (currentAd.targetUrl) {
       window.open(currentAd.targetUrl, "_blank");
     }
     
-    setTimeout(() => {
-      clickAdMutation.mutate(currentAd.id);
-    }, 1000);
+    setAdState("viewing");
+  };
+
+  const handleConfirm = () => {
+    if (!currentAd) return;
+    setAdState("completing");
+    clickAdMutation.mutate(currentAd.id);
   };
 
   return (
@@ -189,24 +202,56 @@ export default function AdsHubPage() {
                   </span>
                 </div>
 
-                <Button
-                  onClick={handleViewAd}
-                  disabled={clickingAd}
-                  className="w-full bg-zinc-900 dark:bg-zinc-800 hover:bg-zinc-800 dark:hover:bg-zinc-700 text-white py-6"
-                  data-testid="button-view-ad"
-                >
-                  {clickingAd ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <Eye className="w-5 h-5 mr-2" />
-                      View Ads
-                    </>
-                  )}
-                </Button>
+                {adState === "ready" && (
+                  <Button
+                    onClick={handleViewAd}
+                    className="w-full bg-zinc-900 dark:bg-zinc-800 hover:bg-zinc-800 dark:hover:bg-zinc-700 text-white py-6"
+                    data-testid="button-view-ad"
+                  >
+                    <Eye className="w-5 h-5 mr-2" />
+                    View Ads
+                  </Button>
+                )}
+
+                {adState === "viewing" && (
+                  <div className="flex flex-col items-center justify-center py-6">
+                    <div className="relative w-12 h-12">
+                      <div className="absolute inset-0 border-4 border-zinc-300 dark:border-zinc-600 rounded-full"></div>
+                      <div className="absolute inset-0 border-4 border-t-blue-500 rounded-full animate-spin"></div>
+                    </div>
+                    <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">
+                      Verifying ad view...
+                    </p>
+                  </div>
+                )}
+
+                {adState === "confirm" && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                  >
+                    <Button
+                      onClick={handleConfirm}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6"
+                      data-testid="button-confirm-ad"
+                    >
+                      <Check className="w-5 h-5 mr-2" />
+                      Confirm
+                    </Button>
+                  </motion.div>
+                )}
+
+                {adState === "completing" && (
+                  <div className="flex flex-col items-center justify-center py-6">
+                    <div className="relative w-12 h-12">
+                      <div className="absolute inset-0 border-4 border-zinc-300 dark:border-zinc-600 rounded-full"></div>
+                      <div className="absolute inset-0 border-4 border-t-green-500 rounded-full animate-spin"></div>
+                    </div>
+                    <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">
+                      Completing ad...
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
