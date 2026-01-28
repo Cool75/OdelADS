@@ -26,13 +26,12 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Star, Search, Phone, RotateCcw, Pencil, Plus, X, ArrowLeft } from "lucide-react";
-import { useLocation } from "wouter";
+import { Link } from "wouter";
 
 export default function AdminPremiumManage() {
   const { user } = useAuth();
   const { data: users } = useUsersList();
   const { toast } = useToast();
-  const [, setLocation] = useLocation();
   
   const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -162,16 +161,10 @@ export default function AdminPremiumManage() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        {/* Back Button */}
-        <Button 
-          variant="ghost" 
-          onClick={() => setLocation("/admin")}
-          className="text-zinc-400 hover:text-white"
-          data-testid="button-back"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
-        </Button>
+        <Link href="/admin" className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors" data-testid="link-back-admin">
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to Dashboard</span>
+        </Link>
 
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-lg bg-orange-500/20 flex items-center justify-center">

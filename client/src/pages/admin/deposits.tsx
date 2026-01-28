@@ -32,7 +32,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Wallet, Plus, ArrowLeft } from "lucide-react";
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 
 interface Deposit {
@@ -53,7 +53,6 @@ interface User {
 
 export default function AdminDeposits() {
   const { user } = useAuth();
-  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState("");
@@ -106,16 +105,10 @@ export default function AdminDeposits() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        {/* Back Button */}
-        <Button 
-          variant="ghost" 
-          onClick={() => setLocation("/admin")}
-          className="text-zinc-400 hover:text-white"
-          data-testid="button-back"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
-        </Button>
+        <Link href="/admin" className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors" data-testid="link-back-admin">
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to Dashboard</span>
+        </Link>
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
