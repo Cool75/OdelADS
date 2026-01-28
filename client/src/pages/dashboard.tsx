@@ -104,8 +104,8 @@ export default function Dashboard() {
   if (isUserLoading || isAdsLoading) {
     return (
       <div className="min-h-screen bg-black flex">
-        <div className="w-20 bg-zinc-900" />
-        <div className="flex-1 p-6">
+        <div className="hidden md:block w-20 bg-zinc-900" />
+        <div className="flex-1 p-4 md:p-6">
           <div className="space-y-4">
             <Skeleton className="h-8 w-48 bg-zinc-800" />
             <Skeleton className="h-32 bg-zinc-800 rounded-2xl" />
@@ -138,12 +138,38 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-black text-white font-sans">
-      {/* Sidebar */}
+      {/* Mobile Bottom Navigation */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-zinc-900/95 backdrop-blur-xl border-t border-zinc-800/50 z-50 safe-area-pb">
+        <nav className="flex justify-around items-center py-2 px-2">
+          {sidebarItems.slice(0, 5)
+            .filter(item => item.label !== "Payouts" || canRequestPayout)
+            .map((item) => (
+            <button
+              key={item.label}
+              onClick={() => {
+                setActiveSidebar(item.path);
+                setLocation(item.path);
+              }}
+              className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
+                activeSidebar === item.path 
+                  ? "text-orange-500" 
+                  : "text-zinc-400"
+              }`}
+              data-testid={`nav-mobile-${item.label.toLowerCase().replace(' ', '-')}`}
+            >
+              <item.icon className="w-5 h-5" />
+              <span className="text-[10px] font-medium">{item.label}</span>
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      {/* Sidebar - Desktop Only */}
       <motion.aside 
         initial={{ width: 80 }}
         animate={{ width: sidebarExpanded ? 200 : 80 }}
         transition={{ duration: 0.3 }}
-        className="bg-zinc-900/50 backdrop-blur-xl border-r border-zinc-800/50 flex flex-col py-6 fixed h-full z-50"
+        className="hidden md:flex bg-zinc-900/50 backdrop-blur-xl border-r border-zinc-800/50 flex-col py-6 fixed h-full z-50"
       >
         <motion.button 
           initial={{ scale: 0 }}
@@ -221,10 +247,8 @@ export default function Dashboard() {
       </motion.aside>
 
       {/* Main Content - Scrollable */}
-      <motion.main 
-        animate={{ marginLeft: sidebarExpanded ? 200 : 80 }}
-        transition={{ duration: 0.3 }}
-        className="min-h-screen"
+      <div className="min-h-screen pb-20 md:pb-0 ml-0 md:ml-20 transition-all duration-300"
+        style={{ marginLeft: sidebarExpanded ? 200 : undefined }}
       >
         {/* Marquee Banner */}
         <div className="bg-gradient-to-r from-amber-700 via-amber-600 to-amber-700 py-2 overflow-hidden">
@@ -666,7 +690,7 @@ export default function Dashboard() {
             </motion.button>
           )}
         </AnimatePresence>
-      </motion.main>
+      </div>
     </div>
   );
 }

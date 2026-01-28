@@ -26,15 +26,15 @@ export default function AuthPage({ defaultMode = "login" }: AuthPageProps) {
   };
 
   return (
-    <div className={`min-h-screen flex items-center justify-center p-4 ${isLogin ? 'bg-gradient-to-br from-red-900 via-red-800 to-red-900' : 'bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800'}`}>
+    <div className={`min-h-screen flex items-center justify-center p-2 sm:p-4 ${isLogin ? 'bg-gradient-to-br from-red-900 via-red-800 to-red-900' : 'bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800'}`}>
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[600px]"
+        className="w-full max-w-5xl bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[500px] md:min-h-[600px]"
       >
-        {/* Left Side - Image */}
-        <div className="md:w-1/2 relative min-h-[300px] md:min-h-auto">
+        {/* Left Side - Image - Hidden on small mobile */}
+        <div className="hidden sm:block md:w-1/2 relative min-h-[200px] sm:min-h-[250px] md:min-h-auto">
           <motion.img
             key={isLogin ? "login" : "register"}
             initial={{ opacity: 0 }}
@@ -65,7 +65,7 @@ export default function AuthPage({ defaultMode = "login" }: AuthPageProps) {
         </div>
 
         {/* Right Side - Form */}
-        <div className="md:w-1/2 p-8 md:p-10 flex flex-col justify-center bg-white">
+        <div className="flex-1 md:w-1/2 p-5 sm:p-8 md:p-10 flex flex-col justify-center bg-white">
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -184,7 +184,7 @@ export default function AuthPage({ defaultMode = "login" }: AuthPageProps) {
               </div>
 
               {/* Social Buttons */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                 <Button
                   variant="outline"
                   onClick={handleAuth}
