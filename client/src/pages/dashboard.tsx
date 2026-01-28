@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   Wallet, TrendingUp, CheckCircle, Clock, Play, Home, Settings, 
   LayoutGrid, CreditCard, HelpCircle, LogOut, ChevronRight, Zap,
-  DollarSign, Eye, Gift, Star, ArrowRight, Gem, Target, CircleDollarSign, Crown, Phone, LucideIcon
+  DollarSign, Eye, Gift, Star, ArrowRight, Gem, Target, CircleDollarSign, Crown, Phone, PartyPopper, LucideIcon
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
@@ -21,12 +21,15 @@ const sidebarItems = [
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
 
-const adCategories: { label: string; icon: LucideIcon; badge?: boolean; path: string }[] = [
+const adCategories: { label: string; icon: LucideIcon; badge?: boolean; path: string; isLogout?: boolean }[] = [
+  { label: "Dashboard", icon: LayoutGrid, path: "/" },
   { label: "Exclusives", icon: Gem, path: "/exclusives" },
   { label: "Ad's Hub", icon: Target, path: "/ads-hub" },
   { label: "Payouts", icon: CircleDollarSign, badge: true, path: "/withdrawals" },
   { label: "Status", icon: Crown, path: "/status" },
+  { label: "Events", icon: PartyPopper, path: "/events" },
   { label: "Contact", icon: Phone, path: "/contact" },
+  { label: "Sign Out", icon: LogOut, path: "/api/logout", isLogout: true },
 ];
 
 export default function Dashboard() {
@@ -174,10 +177,10 @@ export default function Dashboard() {
                   transition={{ delay: 0.1 * i }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setLocation(cat.path)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-1.5 ${
+                  onClick={() => cat.isLogout ? window.location.href = cat.path : setLocation(cat.path)}
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-1.5 ${
                     activeCategory === cat.label
-                      ? "bg-white text-black"
+                      ? "bg-orange-500 text-white"
                       : "bg-zinc-800/50 text-zinc-400 hover:bg-zinc-800 hover:text-white"
                   }`}
                   data-testid={`tab-${cat.label.toLowerCase().replace(/[' ]/g, '-')}`}

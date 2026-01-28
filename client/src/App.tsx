@@ -14,6 +14,7 @@ import ExclusivesPage from "@/pages/exclusives";
 import StatusPage from "@/pages/status";
 import AdsHubPage from "@/pages/ads-hub";
 import ContactPage from "@/pages/contact";
+import EventsPage from "@/pages/events";
 import NotFound from "@/pages/not-found";
 
 import AdminDashboard from "@/pages/admin/dashboard";
@@ -100,6 +101,9 @@ function Router() {
       </Route>
       <Route path="/contact">
         {() => <ProtectedRoute component={ContactPage} />}
+      </Route>
+      <Route path="/events">
+        {() => <ProtectedRoute component={EventsPage} />}
       </Route>
 
       <Route path="/admin">
