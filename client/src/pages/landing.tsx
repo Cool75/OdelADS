@@ -1,310 +1,202 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChevronLeft, ChevronRight, Facebook, Twitter, Instagram, Heart } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
-
-const slides = [
-  {
-    id: 1,
-    title: "END OF SEASON",
-    subtitle: "SALE",
-    discount: "30%",
-    bg: "bg-gradient-to-br from-orange-500 to-orange-600",
-    image: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=800&auto=format&fit=crop"
-  },
-  {
-    id: 2,
-    title: "NEW ARRIVALS",
-    subtitle: "COLLECTION",
-    discount: "40%",
-    bg: "bg-gradient-to-br from-orange-600 to-red-500",
-    image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&auto=format&fit=crop"
-  },
-  {
-    id: 3,
-    title: "SUMMER STYLE",
-    subtitle: "FASHION",
-    discount: "25%",
-    bg: "bg-gradient-to-br from-amber-500 to-orange-500",
-    image: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=800&auto=format&fit=crop"
-  }
-];
-
-const brands = [
-  { name: "Levi's", logo: "LEVI'S" },
-  { name: "US Polo", logo: "U.S. POLO ASSN." },
-  { name: "Armani", logo: "A|X" },
-  { name: "Cotton", logo: "cotton COLLECTION" },
-  { name: "Calvin Klein", logo: "Calvin Klein" },
-];
-
-const products = [
-  { id: 1, name: "Calvin Klein Men's Relaxed T-Shirt", price: 15015, oldPrice: 19990, discount: 30, image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&auto=format&fit=crop" },
-  { id: 2, name: "Us Polo Brand Embossed Twill Cap", price: 5565, oldPrice: 7950, discount: 30, image: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=400&auto=format&fit=crop" },
-  { id: 3, name: "Us Polo Mid Rise Regular Fit Trousers", price: 10485, oldPrice: 14950, discount: 30, image: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=400&auto=format&fit=crop" },
-  { id: 4, name: "Us Polo Austin Trim Fit Stretch Trousers", price: 10115, oldPrice: 14450, discount: 30, image: "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=400&auto=format&fit=crop" },
-];
+import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { motion } from "framer-motion";
+import { useState } from "react";
+import { SiGoogle, SiFacebook } from "react-icons/si";
 
 export default function LandingPage() {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [brandOffset, setBrandOffset] = useState(0);
+  const [isLogin, setIsLogin] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-  const handleLogin = () => {
+  const handleAuth = () => {
     window.location.href = "/api/login";
   };
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
-  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
-
-  const scrollBrands = (direction: 'left' | 'right') => {
-    setBrandOffset(prev => direction === 'left' ? Math.min(prev + 1, 0) : Math.max(prev - 1, -(brands.length - 4)));
-  };
-
   return (
-    <div className="min-h-screen bg-white text-foreground flex flex-col font-sans">
-      <header className="bg-zinc-950 text-white sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-8">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center">
-                  <span className="text-white font-bold">O</span>
-                </div>
-                <span className="text-xl font-semibold">ODEL</span>
-              </div>
-              <nav className="hidden md:flex items-center gap-1">
-                <button className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">Features</button>
-                <button className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">Pricing</button>
-                <button className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">Docs</button>
-                <button className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">Blog</button>
-              </nav>
-            </div>
-            <div className="flex items-center gap-2">
-              <button onClick={handleLogin} className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">
-                Sign In
-              </button>
-              <Button 
-                onClick={handleLogin} 
-                size="sm"
-                className="rounded-full bg-white text-black hover:bg-zinc-200 font-medium px-5"
-              >
-                Get Started
-              </Button>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[600px]"
+      >
+        {/* Left Side - Image */}
+        <div className="md:w-1/2 relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-600/90 to-red-600/90 z-10" />
+          <img
+            src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800&auto=format&fit=crop"
+            alt="VR Experience"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-start p-8">
+            {/* Logo */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center"
+            >
+              <span className="text-white text-3xl font-bold">O</span>
+            </motion.div>
           </div>
-        </div>
-      </header>
-
-      <section className="relative overflow-hidden">
-        <div className="grid md:grid-cols-2 gap-4 p-4 max-w-7xl mx-auto">
-          <AnimatePresence mode="wait">
-            {slides.map((slide, index) => (
-              index === currentSlide && (
-                <motion.div
-                  key={slide.id}
-                  initial={{ opacity: 0, x: 100 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -100 }}
-                  transition={{ duration: 0.5 }}
-                  className={`${slide.bg} rounded-lg p-8 min-h-[300px] md:min-h-[400px] flex flex-col justify-center relative overflow-hidden`}
-                >
-                  <div className="absolute right-0 top-0 bottom-0 w-1/2">
-                    <img src={slide.image} alt="" className="h-full w-full object-cover opacity-40" />
-                  </div>
-                  <div className="relative z-10">
-                    <p className="text-white/80 text-sm font-medium mb-2">{slide.title}</p>
-                    <h2 className="text-white text-6xl md:text-8xl font-bold tracking-tight">
-                      {slide.subtitle}<br/>
-                      <span className="text-7xl md:text-9xl">{slide.discount}</span>
-                    </h2>
-                    <p className="text-white/60 text-xs mt-4">T&C APPLY</p>
-                  </div>
-                </motion.div>
-              )
-            ))}
-          </AnimatePresence>
-          
           <motion.div
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-gradient-to-br from-orange-500 to-red-500 rounded-lg p-8 min-h-[300px] md:min-h-[400px] flex flex-col justify-center relative overflow-hidden"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="absolute bottom-8 left-8 right-8 z-20"
           >
-            <div className="absolute right-0 top-0 bottom-0 w-1/2">
-              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&auto=format&fit=crop" alt="" className="h-full w-full object-cover opacity-40" />
-            </div>
-            <div className="relative z-10 text-right">
-              <p className="text-white/80 text-sm font-medium mb-2">END OF SEASON</p>
-              <h2 className="text-white text-6xl md:text-8xl font-bold tracking-tight">
-                SALE<br/>
-                <span className="text-7xl md:text-9xl">40%</span>
-              </h2>
-              <p className="text-white/60 text-xs mt-4">T&C APPLY</p>
-            </div>
+            <h2 className="text-white text-2xl font-bold mb-2">Welcome to ODEL ADS</h2>
+            <p className="text-white/80 text-sm">Watch ads. Earn rewards. It's that simple.</p>
           </motion.div>
         </div>
 
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
-          {slides.map((_, i) => (
+        {/* Right Side - Form */}
+        <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center bg-white">
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            {/* Back Button */}
             <button
-              key={i}
-              onClick={() => setCurrentSlide(i)}
-              className={`w-2 h-2 rounded-full transition-all ${i === currentSlide ? 'bg-orange-500 w-6' : 'bg-gray-300'}`}
-            />
-          ))}
-        </div>
-      </section>
-
-      <section className="py-8 bg-zinc-800">
-        <div className="max-w-7xl mx-auto px-4">
-          <h3 className="text-white font-bold text-sm mb-6">SHOP BY BRAND</h3>
-          <div className="relative">
-            <button 
-              onClick={() => scrollBrands('left')}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors"
+              onClick={() => setIsLogin(!isLogin)}
+              className="mb-6 text-gray-400 hover:text-gray-600 transition-colors"
+              data-testid="button-toggle-auth"
             >
-              <ChevronLeft className="h-5 w-5 text-white" />
+              <ArrowLeft className="w-5 h-5" />
             </button>
-            
-            <div className="overflow-hidden mx-10">
-              <motion.div 
-                className="flex gap-4"
-                animate={{ x: brandOffset * 220 }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              >
-                {brands.map((brand, i) => (
-                  <motion.div
-                    key={i}
-                    whileHover={{ scale: 1.05 }}
-                    className="min-w-[200px] bg-white rounded-lg p-6 flex items-center justify-center h-24 cursor-pointer"
-                  >
-                    <span className="text-xl font-bold text-gray-800">{brand.logo}</span>
-                  </motion.div>
-                ))}
-              </motion.div>
-            </div>
-            
-            <button 
-              onClick={() => scrollBrands('right')}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors"
-            >
-              <ChevronRight className="h-5 w-5 text-white" />
-            </button>
-          </div>
-        </div>
-      </section>
 
-      <section className="py-12 max-w-7xl mx-auto px-4">
-        <h2 className="text-2xl font-bold mb-8">All Products</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <motion.div
-              key={product.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              whileHover={{ y: -5 }}
-              className="group cursor-pointer"
-            >
-              <div className="relative bg-gray-100 rounded-lg overflow-hidden mb-4">
-                <img 
-                  src={product.image} 
-                  alt={product.name}
-                  className="w-full aspect-[3/4] object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <span className="absolute top-3 left-3 bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                  {product.discount}%
-                </span>
-                <button className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Heart className="h-5 w-5 text-gray-600 hover:text-red-500 transition-colors" />
-                </button>
-              </div>
-              <h3 className="text-sm font-medium text-gray-800 mb-2 line-clamp-2">{product.name}</h3>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-gray-900">LKR {product.price.toLocaleString()}</span>
-                <span className="text-sm text-gray-400 line-through">LKR {product.oldPrice.toLocaleString()}</span>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      <footer className="bg-zinc-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8 mb-12">
-            <div>
-              <h4 className="font-bold mb-4">Customer Care</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li className="hover:text-white cursor-pointer transition-colors">Return & Refund</li>
-                <li className="hover:text-white cursor-pointer transition-colors">Contact Us</li>
-                <li className="hover:text-white cursor-pointer transition-colors">Service Payment</li>
-                <li className="hover:text-white cursor-pointer transition-colors">Store Locator</li>
-                <li className="hover:text-white cursor-pointer transition-colors">CRM</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold mb-4">Get To Know Us</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li className="hover:text-white cursor-pointer transition-colors">Investor Information</li>
-                <li className="hover:text-white cursor-pointer transition-colors">Odel Magazine</li>
-              </ul>
-              <div className="flex gap-3 mt-4">
-                <Facebook className="h-8 w-8 p-1.5 bg-zinc-700 rounded-full cursor-pointer hover:bg-zinc-600 transition-colors" />
-                <Twitter className="h-8 w-8 p-1.5 bg-zinc-700 rounded-full cursor-pointer hover:bg-zinc-600 transition-colors" />
-                <Instagram className="h-8 w-8 p-1.5 bg-zinc-700 rounded-full cursor-pointer hover:bg-zinc-600 transition-colors" />
-              </div>
-            </div>
-            <div>
-              <h4 className="font-bold mb-4">Let Us Help You</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li className="hover:text-white cursor-pointer transition-colors">My Account</li>
-                <li className="hover:text-white cursor-pointer transition-colors">My Orders</li>
-                <li className="hover:text-white cursor-pointer transition-colors">Terms Of Use</li>
-                <li className="hover:text-white cursor-pointer transition-colors">Privacy Policy</li>
-                <li className="hover:text-white cursor-pointer transition-colors">FAQs</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold mb-4">Sign up for Newsletter</h4>
-              <div className="flex gap-2">
-                <Input 
-                  placeholder="Enter your email address" 
-                  className="bg-zinc-800 border-zinc-700 text-white placeholder:text-gray-500"
-                />
-              </div>
-              <Button className="w-full mt-3 bg-orange-500 hover:bg-orange-600 text-white">
-                Subscribe
-              </Button>
-            </div>
-          </div>
-          
-          <div className="border-t border-zinc-800 pt-8">
-            <div className="text-center mb-6">
-              <p className="text-sm text-gray-400 mb-4">Shop At Our Group Companies</p>
-              <div className="flex justify-center gap-8 items-center">
-                <span className="text-lg font-bold">mysoftlogic.lk</span>
-                <span className="text-xl font-bold">GLOMARK</span>
-              </div>
-            </div>
-            <div className="flex justify-center gap-4 mb-6">
-              <div className="w-10 h-6 bg-red-600 rounded"></div>
-              <div className="w-10 h-6 bg-blue-600 rounded"></div>
-              <div className="w-10 h-6 bg-orange-500 rounded"></div>
-            </div>
-            <p className="text-center text-xs text-gray-500">
-              Copyright ©{new Date().getFullYear()} All rights reserved
+            {/* Title */}
+            <h1 className="text-3xl font-bold text-gray-900 mb-2" data-testid="text-auth-title">
+              {isLogin ? "Log in" : "Create an Account"}
+            </h1>
+            <p className="text-gray-500 mb-8">
+              {isLogin ? (
+                <>Don't have an account? <button onClick={() => setIsLogin(false)} className="text-gray-900 underline font-medium">Create an Account</button></>
+              ) : (
+                <>Already have an account? <button onClick={() => setIsLogin(true)} className="text-gray-900 underline font-medium">Log in</button></>
+              )}
             </p>
-          </div>
+
+            {/* Form Fields */}
+            <div className="space-y-4">
+              {!isLogin && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-1 block">First Name</label>
+                    <Input
+                      placeholder="John"
+                      className="h-12 border-gray-300 focus:border-gray-900"
+                      data-testid="input-first-name"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-1 block">Last Name</label>
+                    <Input
+                      placeholder="Last Name"
+                      className="h-12 border-gray-300 focus:border-gray-900"
+                      data-testid="input-last-name"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-1 block">Email Address</label>
+                <Input
+                  type="email"
+                  placeholder="Email Address"
+                  className="h-12 border-gray-300 focus:border-gray-900"
+                  data-testid="input-email"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-1 block">Password</label>
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password"
+                    className="h-12 border-gray-300 focus:border-gray-900 pr-12"
+                    data-testid="input-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    data-testid="button-toggle-password"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+                {isLogin && (
+                  <div className="text-right mt-2">
+                    <button className="text-sm text-gray-900 underline">Forgot Password?</button>
+                  </div>
+                )}
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                onClick={handleAuth}
+                className="w-full h-12 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-full mt-4"
+                data-testid="button-submit-auth"
+              >
+                {isLogin ? "Log in" : "Create Account"}
+              </Button>
+
+              {/* Terms Checkbox */}
+              <div className="flex items-center gap-2 mt-4">
+                <Checkbox
+                  id="terms"
+                  checked={agreedToTerms}
+                  onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
+                  className="border-gray-300"
+                  data-testid="checkbox-terms"
+                />
+                <label htmlFor="terms" className="text-sm text-gray-600">
+                  I agree to the <button className="underline font-medium text-gray-900">Terms & Condition</button>
+                </label>
+              </div>
+
+              {/* Divider */}
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-white text-gray-400">or</span>
+                </div>
+              </div>
+
+              {/* Social Buttons */}
+              <div className="grid grid-cols-2 gap-4">
+                <Button
+                  variant="outline"
+                  onClick={handleAuth}
+                  className="h-12 border-gray-300 hover:bg-gray-50 font-medium rounded-full"
+                  data-testid="button-google"
+                >
+                  <SiGoogle className="w-5 h-5 mr-2 text-red-500" />
+                  Continue with Google
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleAuth}
+                  className="h-12 border-gray-300 hover:bg-gray-50 font-medium rounded-full"
+                  data-testid="button-facebook"
+                >
+                  <SiFacebook className="w-5 h-5 mr-2 text-blue-600" />
+                  Continue with Facebook
+                </Button>
+              </div>
+            </div>
+          </motion.div>
         </div>
-      </footer>
+      </motion.div>
     </div>
   );
 }

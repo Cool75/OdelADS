@@ -25,12 +25,14 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Star, Search, Phone, RotateCcw, Pencil, Plus, X } from "lucide-react";
+import { Star, Search, Phone, RotateCcw, Pencil, Plus, X, ArrowLeft } from "lucide-react";
+import { useLocation } from "wouter";
 
 export default function AdminPremiumManage() {
   const { user } = useAuth();
   const { data: users } = useUsersList();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   
   const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -159,15 +161,27 @@ export default function AdminPremiumManage() {
 
   return (
     <AdminLayout>
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 rounded-lg bg-amber-500/20 flex items-center justify-center">
-          <Star className="h-6 w-6 text-amber-500" />
+      <div className="space-y-6">
+        {/* Back Button */}
+        <Button 
+          variant="ghost" 
+          onClick={() => setLocation("/admin")}
+          className="text-zinc-400 hover:text-white"
+          data-testid="button-back"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back
+        </Button>
+
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-lg bg-orange-500/20 flex items-center justify-center">
+            <Star className="h-6 w-6 text-orange-500" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-white">Premium Manage</h1>
+            <p className="text-zinc-400">Manage user balances, deposits, and promotions</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold">Premium Manage</h1>
-          <p className="text-muted-foreground">Manage user balances, deposits, and promotions</p>
-        </div>
-      </div>
 
       <Card>
         <CardHeader>
@@ -858,6 +872,7 @@ export default function AdminPremiumManage() {
           </div>
         </DialogContent>
       </Dialog>
+      </div>
     </AdminLayout>
   );
 }
