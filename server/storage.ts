@@ -19,6 +19,7 @@ export interface IStorage extends IAuthStorage {
   // Balance Ops
   addMilestoneReward(userId: string, amount: number): Promise<void>;
   addMilestoneAmount(userId: string, amount: number): Promise<void>;
+  setMilestoneAmount(userId: string, amount: number): Promise<void>;
   subtractMilestoneAmount(userId: string, amount: number): Promise<void>;
   incrementAdsCompleted(userId: string): Promise<void>;
   incrementRestrictedAds(userId: string): Promise<void>;
@@ -135,6 +136,10 @@ export class DatabaseStorage implements IStorage {
     if (!user) return;
     const current = parseFloat(user.milestoneAmount || "0");
     await this.updateUser(userId, { milestoneAmount: (current + amount).toFixed(2) });
+  }
+
+  async setMilestoneAmount(userId: string, amount: number): Promise<void> {
+    await this.updateUser(userId, { milestoneAmount: amount.toFixed(2) });
   }
 
   async subtractMilestoneAmount(userId: string, amount: number): Promise<void> {

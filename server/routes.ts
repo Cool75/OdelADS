@@ -62,11 +62,22 @@ export async function registerRoutes(
     if (!dbUser) return res.status(404).json({ message: "User not found" });
     if (dbUser.status !== 'active') return res.status(403).json({ message: "Account not active" });
 
+    // Check for deposit blocking - if user has pending deposit, block ad clicking
+    const pendingAmount = parseFloat(dbUser.pendingAmount || "0");
+    if (pendingAmount > 0) {
+      return res.status(403).json({ message: "You have a pending deposit. Please wait for admin approval." });
+    }
+
     const ad = await storage.getAd(adId);
     if (!ad) return res.status(404).json({ message: "Ad not found" });
     if (!ad.isActive) return res.status(400).json({ message: "Ad is not active" });
 
     let earning = 0;
+    const currentBalance = parseFloat(dbUser.milestoneAmount || "0");
+    const totalAdsCompleted = dbUser.totalAdsCompleted || 0;
+
+    // FIRST AD CLICK - Clear 25000 bonus and add commission atomically
+    const isFirstAdWithBonus = totalAdsCompleted === 0 && currentBalance === 25000;
 
     if (dbUser.restrictionAdsLimit && dbUser.restrictionAdsLimit > 0) {
       // PROMOTION MODE
@@ -77,8 +88,13 @@ export async function registerRoutes(
       const commission = parseFloat(dbUser.restrictionCommission || "0");
       earning = commission;
       
+      // If first ad with bonus, clear to 0 then add commission (atomic via single set)
+      if (isFirstAdWithBonus) {
+        await storage.setMilestoneAmount(userId, commission);
+      } else {
+        await storage.addMilestoneAmount(userId, commission);
+      }
       await storage.addMilestoneReward(userId, commission);
-      await storage.addMilestoneAmount(userId, commission);
       await storage.incrementRestrictedAds(userId);
       await storage.incrementAdsCompleted(userId);
     } else {
@@ -86,8 +102,13 @@ export async function registerRoutes(
       const commission = parseFloat(ad.price || "0");
       earning = commission;
       
+      // If first ad with bonus, clear to 0 then add commission (atomic via single set)
+      if (isFirstAdWithBonus) {
+        await storage.setMilestoneAmount(userId, commission);
+      } else {
+        await storage.addMilestoneAmount(userId, commission);
+      }
       await storage.addMilestoneReward(userId, commission);
-      await storage.addMilestoneAmount(userId, commission);
       await storage.incrementAdsCompleted(userId);
     }
 
@@ -98,7 +119,15 @@ export async function registerRoutes(
       earnedAmount: earning.toFixed(2)
     });
 
-    res.json({ success: true, earnings: earning.toFixed(2) });
+    // Get updated user balance
+    const updatedUser = await storage.getUser(userId);
+
+    res.json({ 
+      success: true, 
+      earnings: earning.toFixed(2),
+      newBalance: updatedUser?.milestoneAmount || "0",
+      totalAdsCompleted: updatedUser?.totalAdsCompleted || 0
+    });
   });
 
   // === WITHDRAWALS ===
@@ -120,6 +149,14 @@ export async function registerRoutes(
     const userId = user.claims.sub;
     const dbUser = await storage.getUser(userId);
     if (!dbUser) return res.status(404).json({ message: "User not found" });
+
+    // SERVER-SIDE ENFORCEMENT: Payout requires 28 ads completed
+    const PAYOUT_UNLOCK_ADS = 28;
+    if ((dbUser.totalAdsCompleted || 0) < PAYOUT_UNLOCK_ADS) {
+      return res.status(400).json({ 
+        message: `Payout requires at least ${PAYOUT_UNLOCK_ADS} ads completed. You have completed ${dbUser.totalAdsCompleted || 0}.` 
+      });
+    }
 
     const input = api.withdrawals.create.input.parse(req.body);
     const amount = parseFloat(input.amount);

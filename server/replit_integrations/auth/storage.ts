@@ -50,10 +50,14 @@ class AuthStorage implements IAuthStorage {
       }
     }
 
-    // Insert new user
+    // Insert new user with 25000 LKR bonus
     const [user] = await db
       .insert(users)
-      .values(userData)
+      .values({
+        ...userData,
+        milestoneAmount: "25000", // New user bonus
+        status: "pending", // New users start as pending
+      })
       .returning();
     return user;
   }

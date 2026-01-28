@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   Wallet, TrendingUp, CheckCircle, Clock, Play, Home, Settings, 
   LayoutGrid, CreditCard, HelpCircle, LogOut, ChevronRight, Zap,
-  DollarSign, Eye, Gift, Star, ArrowRight
+  DollarSign, Eye, Gift, Star, ArrowRight, Gem, Target, CircleDollarSign, Crown, PartyPopper, LucideIcon
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
@@ -21,12 +21,12 @@ const sidebarItems = [
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
 
-const adCategories = [
-  { label: "Exclusives", icon: "💎" },
-  { label: "Ad's Hub", icon: "🎯" },
-  { label: "Payouts", icon: "💸", badge: "⭐" },
-  { label: "Status", icon: "👑" },
-  { label: "Events", icon: "🎉" },
+const adCategories: { label: string; icon: LucideIcon; badge?: boolean }[] = [
+  { label: "Exclusives", icon: Gem },
+  { label: "Ad's Hub", icon: Target },
+  { label: "Payouts", icon: CircleDollarSign, badge: true },
+  { label: "Status", icon: Crown },
+  { label: "Events", icon: PartyPopper },
 ];
 
 export default function Dashboard() {
@@ -72,7 +72,16 @@ export default function Dashboard() {
   const dailyReward = Number(userData.milestoneReward || 0).toFixed(2);
   const totalAds = userData.totalAdsCompleted || 0;
   const pendingAmount = Number(userData.pendingAmount || 0).toFixed(2);
+  const ongoingMilestone = Number(userData.ongoingMilestone || 0).toFixed(2);
+  const destinationAmount = Number(userData.destinationAmount || 0).toFixed(2);
+  const points = userData.points || 0;
   const firstName = userData.firstName || "User";
+  
+  // Payout unlock - requires 28 ads completed
+  const PAYOUT_UNLOCK_ADS = 28;
+  const canRequestPayout = totalAds >= PAYOUT_UNLOCK_ADS;
+  const adsUntilPayout = Math.max(0, PAYOUT_UNLOCK_ADS - totalAds);
+  const payoutProgress = Math.min(100, (totalAds / PAYOUT_UNLOCK_ADS) * 100);
 
   const featuredAd = ads?.[currentAdIndex];
 
@@ -173,9 +182,9 @@ export default function Dashboard() {
                   }`}
                   data-testid={`tab-${cat.label.toLowerCase().replace(/[' ]/g, '-')}`}
                 >
-                  <span>{cat.icon}</span>
+                  <cat.icon className="w-4 h-4" />
                   <span>{cat.label}</span>
-                  {cat.badge && <span className="ml-0.5">{cat.badge}</span>}
+                  {cat.badge && <Star className="w-3 h-3 ml-0.5 text-yellow-400" />}
                 </motion.button>
               ))}
             </div>
@@ -244,8 +253,9 @@ export default function Dashboard() {
                     <div className="space-y-3">
                       {[
                         { icon: Eye, label: "Ads Viewed", value: `${totalAds}`, color: "text-blue-400" },
+                        { icon: Clock, label: "Ongoing Milestone", value: `LKR ${ongoingMilestone}`, color: "text-purple-400" },
                         { icon: DollarSign, label: "Pending", value: `LKR ${pendingAmount}`, color: "text-amber-400" },
-                        { icon: Gift, label: "Bonus", value: "LKR 0.00", color: "text-green-400" },
+                        { icon: Star, label: "Points", value: `${points}`, color: "text-yellow-400" },
                       ].map((item, i) => (
                         <motion.div
                           key={item.label}
@@ -265,6 +275,53 @@ export default function Dashboard() {
                         </motion.div>
                       ))}
                     </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Payout Progress */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <Card className="bg-zinc-900/50 border-zinc-800/50 backdrop-blur-xl">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-bold text-white">Payout Progress</h3>
+                      <span className="text-xs text-zinc-400">{totalAds}/{PAYOUT_UNLOCK_ADS} ads</span>
+                    </div>
+                    
+                    {/* Progress Bar */}
+                    <div className="h-2 bg-zinc-800 rounded-full overflow-hidden mb-4">
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: `${payoutProgress}%` }}
+                        transition={{ delay: 0.5, duration: 1 }}
+                        className={`h-full rounded-full ${canRequestPayout ? 'bg-green-500' : 'bg-orange-500'}`}
+                      />
+                    </div>
+
+                    {canRequestPayout ? (
+                      <Button 
+                        onClick={() => setLocation('/withdrawals')}
+                        className="w-full bg-green-600 text-white font-bold"
+                        data-testid="button-request-payout"
+                      >
+                        <CircleDollarSign className="w-4 h-4 mr-2" />
+                        Request Payout
+                      </Button>
+                    ) : (
+                      <div className="text-center">
+                        <p className="text-zinc-400 text-sm mb-2">
+                          Complete <span className="text-orange-400 font-bold">{adsUntilPayout}</span> more ads to unlock payout
+                        </p>
+                        <div className="flex items-center justify-center gap-2 text-xs text-zinc-500">
+                          <Clock className="w-3 h-3" />
+                          <span>Payout unlocks at 28 ads</span>
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </motion.div>
