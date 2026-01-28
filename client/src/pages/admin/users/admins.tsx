@@ -12,7 +12,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Shield } from "lucide-react";
+import { Shield, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function AdminAdmins() {
   const { user } = useAuth();
@@ -26,6 +27,15 @@ export default function AdminAdmins() {
 
   return (
     <AdminLayout>
+      <Button 
+        variant="ghost" 
+        onClick={() => window.history.back()}
+        className="text-zinc-400 hover:text-white mb-4"
+        data-testid="button-back"
+      >
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Back
+      </Button>
       <div className="flex items-center gap-3 mb-6">
         <div className="w-12 h-12 rounded-lg bg-amber-500/20 flex items-center justify-center">
           <Shield className="h-6 w-6 text-amber-500" />

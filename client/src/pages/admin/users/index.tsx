@@ -24,7 +24,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { MoreHorizontal, Search, UserCheck, UserX, Shield, Eye } from "lucide-react";
+import { MoreHorizontal, Search, UserCheck, UserX, Shield, Eye, ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 
 export default function AdminAllUsers() {
@@ -55,6 +55,15 @@ export default function AdminAllUsers() {
 
   return (
     <AdminLayout>
+      <Button 
+        variant="ghost" 
+        onClick={() => window.history.back()}
+        className="text-zinc-400 hover:text-white mb-4"
+        data-testid="button-back"
+      >
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Back
+      </Button>
       <div className="flex items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold">All Users</h1>

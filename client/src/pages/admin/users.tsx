@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Ban, CheckCircle, Wallet, Edit } from "lucide-react";
+import { Search, Ban, CheckCircle, Wallet, Edit, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import {
   Dialog,
@@ -51,6 +51,15 @@ export default function AdminUsers() {
 
   return (
     <LayoutShell>
+      <Button 
+        variant="ghost" 
+        onClick={() => window.history.back()}
+        className="text-zinc-400 hover:text-white mb-4"
+        data-testid="button-back"
+      >
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Back
+      </Button>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-display font-bold">User Management</h1>

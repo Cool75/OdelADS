@@ -11,7 +11,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
-import { PercentCircle } from "lucide-react";
+import { PercentCircle, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Commission {
   id: number;
@@ -36,6 +37,15 @@ export default function AdminCommissions() {
 
   return (
     <AdminLayout>
+      <Button 
+        variant="ghost" 
+        onClick={() => window.history.back()}
+        className="text-zinc-400 hover:text-white mb-4"
+        data-testid="button-back"
+      >
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Back
+      </Button>
       <div className="flex items-center gap-3 mb-6">
         <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center">
           <PercentCircle className="h-6 w-6 text-purple-500" />

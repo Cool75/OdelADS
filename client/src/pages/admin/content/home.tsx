@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Home, Save } from "lucide-react";
+import { Home, Save, ArrowLeft } from "lucide-react";
 
 export default function AdminHomeContent() {
   const { user } = useAuth();
@@ -63,6 +63,15 @@ export default function AdminHomeContent() {
 
   return (
     <AdminLayout>
+      <Button 
+        variant="ghost" 
+        onClick={() => window.history.back()}
+        className="text-zinc-400 hover:text-white mb-4"
+        data-testid="button-back"
+      >
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Back
+      </Button>
       <div className="flex items-center gap-3 mb-6">
         <div className="w-12 h-12 rounded-lg bg-cyan-500/20 flex items-center justify-center">
           <Home className="h-6 w-6 text-cyan-500" />

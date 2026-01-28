@@ -32,7 +32,6 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Wallet, Plus, ArrowLeft } from "lucide-react";
 import { useState } from "react";
-import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 
 interface Deposit {
@@ -53,7 +52,6 @@ interface User {
 
 export default function AdminDeposits() {
   const { user } = useAuth();
-  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState("");
@@ -109,7 +107,7 @@ export default function AdminDeposits() {
         {/* Back Button */}
         <Button 
           variant="ghost" 
-          onClick={() => setLocation("/admin")}
+          onClick={() => window.history.back()}
           className="text-zinc-400 hover:text-white"
           data-testid="button-back"
         >

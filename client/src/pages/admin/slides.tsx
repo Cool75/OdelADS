@@ -17,7 +17,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Image, Plus, Pencil, Trash2, GripVertical } from "lucide-react";
+import { Image, Plus, Pencil, Trash2, GripVertical, ArrowLeft } from "lucide-react";
 
 interface Slide {
   id: number;
@@ -124,6 +124,15 @@ export default function AdminSlides() {
 
   return (
     <AdminLayout>
+      <Button 
+        variant="ghost" 
+        onClick={() => window.history.back()}
+        className="text-zinc-400 hover:text-white mb-4"
+        data-testid="button-back"
+      >
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Back
+      </Button>
       <div className="flex items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-lg bg-pink-500/20 flex items-center justify-center">

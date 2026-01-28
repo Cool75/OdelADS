@@ -26,13 +26,10 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Star, Search, Phone, RotateCcw, Pencil, Plus, X, ArrowLeft } from "lucide-react";
-import { useLocation } from "wouter";
-
 export default function AdminPremiumManage() {
   const { user } = useAuth();
   const { data: users } = useUsersList();
   const { toast } = useToast();
-  const [, setLocation] = useLocation();
   
   const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -165,7 +162,7 @@ export default function AdminPremiumManage() {
         {/* Back Button */}
         <Button 
           variant="ghost" 
-          onClick={() => setLocation("/admin")}
+          onClick={() => window.history.back()}
           className="text-zinc-400 hover:text-white"
           data-testid="button-back"
         >

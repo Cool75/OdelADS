@@ -15,7 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useState } from "react";
-import { Users, Search, Eye } from "lucide-react";
+import { Users, Search, Eye, ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 
 export default function AdminTransactionUsers() {
@@ -37,6 +37,15 @@ export default function AdminTransactionUsers() {
 
   return (
     <AdminLayout>
+      <Button 
+        variant="ghost" 
+        onClick={() => window.history.back()}
+        className="text-zinc-400 hover:text-white mb-4"
+        data-testid="button-back"
+      >
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Back
+      </Button>
       <div className="flex items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center">

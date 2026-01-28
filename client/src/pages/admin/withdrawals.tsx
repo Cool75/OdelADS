@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, X, CreditCard } from "lucide-react";
+import { Check, X, CreditCard, ArrowLeft } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -52,6 +52,15 @@ export default function AdminWithdrawals() {
 
   return (
     <AdminLayout>
+      <Button 
+        variant="ghost" 
+        onClick={() => window.history.back()}
+        className="text-zinc-400 hover:text-white mb-4"
+        data-testid="button-back"
+      >
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Back
+      </Button>
       <div className="flex items-center gap-3 mb-6">
         <div className="w-12 h-12 rounded-lg bg-green-500/20 flex items-center justify-center">
           <CreditCard className="h-6 w-6 text-green-500" />

@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Search, Download, Filter, TrendingUp, TrendingDown } from "lucide-react";
-import { useLocation } from "wouter";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Table,
@@ -31,7 +30,9 @@ const dummyHistory = [
 ];
 
 export default function PremiumHistoryPage() {
-  const [, setLocation] = useLocation();
+  const handleBack = () => {
+    window.history.back();
+  };
 
   return (
     <AdminLayout>
@@ -40,7 +41,7 @@ export default function PremiumHistoryPage() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setLocation("/admin")}
+            onClick={handleBack}
             className="rounded-full"
             data-testid="button-back"
           >

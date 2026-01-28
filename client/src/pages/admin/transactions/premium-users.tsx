@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Search, Crown, MoreVertical, Mail, Ban } from "lucide-react";
-import { useLocation } from "wouter";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -28,7 +27,9 @@ const dummyPremiumUsers = [
 ];
 
 export default function PremiumUsersPage() {
-  const [, setLocation] = useLocation();
+  const handleBack = () => {
+    window.history.back();
+  };
 
   return (
     <AdminLayout>
@@ -37,7 +38,7 @@ export default function PremiumUsersPage() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setLocation("/admin")}
+            onClick={handleBack}
             className="rounded-full"
             data-testid="button-back"
           >

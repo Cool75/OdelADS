@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Plus, Edit2, Trash2, Star, Check } from "lucide-react";
-import { useLocation } from "wouter";
 import { useState } from "react";
 import {
   Dialog,
@@ -22,9 +21,12 @@ const dummyPlans = [
 ];
 
 export default function PremiumPlansPage() {
-  const [, setLocation] = useLocation();
   const [plans, setPlans] = useState(dummyPlans);
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  const handleBack = () => {
+    window.history.back();
+  };
 
   return (
     <AdminLayout>
@@ -33,7 +35,7 @@ export default function PremiumPlansPage() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setLocation("/admin")}
+            onClick={handleBack}
             className="rounded-full"
             data-testid="button-back"
           >
