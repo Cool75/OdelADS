@@ -2,7 +2,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
-  ArrowLeft, TrendingUp, Target, Gift, Clock, Star, CheckCircle, Lock
+  ArrowLeft, TrendingUp, Target, Gift, Clock, CheckCircle, Lock
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
@@ -30,7 +30,6 @@ export default function ExclusivesPage() {
   const milestoneAmount = Number(userData.milestoneAmount || 0).toFixed(2);
   const milestoneReward = Number(userData.milestoneReward || 0).toFixed(2);
   const ongoingMilestone = Number(userData.ongoingMilestone || 0).toFixed(2);
-  const points = userData.points || 0;
   const totalAds = userData.totalAdsCompleted || 0;
   
   const PAYOUT_UNLOCK_ADS = 28;
@@ -133,25 +132,6 @@ export default function ExclusivesPage() {
                 </div>
                 <p className="text-2xl font-bold text-pink-500 mb-1">LKR {ongoingMilestone}</p>
                 <p className="text-xs text-zinc-500">Current progress towards next milestone</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Card className="border-2 border-emerald-400 bg-white dark:bg-zinc-900 h-full">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-zinc-700 dark:text-zinc-300">Points</h3>
-                  <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center">
-                    <Star className="w-4 h-4 text-emerald-500" />
-                  </div>
-                </div>
-                <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">{points}</p>
-                <p className="text-xs text-zinc-500">Loyalty points (max 100)</p>
               </CardContent>
             </Card>
           </motion.div>
