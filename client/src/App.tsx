@@ -36,6 +36,7 @@ import AdminHomeContent from "@/pages/admin/content/home";
 import AdminLabels from "@/pages/admin/content/labels";
 import AdminTheme from "@/pages/admin/appearance/theme";
 import AdminBranding from "@/pages/admin/appearance/branding";
+import AdminDashboardSettings from "@/pages/admin/cms/dashboard-settings";
 
 function ProtectedRoute({ component: Component, adminOnly = false }: { component: React.ComponentType, adminOnly?: boolean }) {
   const { user, isLoading } = useAuth();
@@ -181,6 +182,9 @@ function Router() {
       </Route>
       <Route path="/admin/appearance/branding">
         {() => <ProtectedRoute component={AdminBranding} adminOnly />}
+      </Route>
+      <Route path="/admin/cms/dashboard">
+        {() => <ProtectedRoute component={AdminDashboardSettings} adminOnly />}
       </Route>
 
       <Route component={NotFound} />

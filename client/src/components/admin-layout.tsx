@@ -97,7 +97,7 @@ const adminMenuItems: MenuItem[] = [
     badge: "NEW",
     children: [
       { label: "Home Page", href: "/admin/content/home", icon: Home },
-      { label: "Dashboard Page", href: "/admin/content/dashboard", icon: LayoutDashboard },
+      { label: "Dashboard Settings", href: "/admin/cms/dashboard", icon: LayoutDashboard, badge: "NEW" },
       { label: "Slideshow Images", href: "/admin/slides", icon: Image },
       { label: "Text & Labels", href: "/admin/content/labels", icon: Type },
     ]

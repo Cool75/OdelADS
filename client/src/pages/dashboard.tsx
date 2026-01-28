@@ -2,16 +2,20 @@ import { useAuth } from "@/hooks/use-auth";
 import { useAds, useClickAd } from "@/hooks/use-ads";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   Wallet, TrendingUp, CheckCircle, Clock, Play, Home, Settings, 
   LayoutGrid, CreditCard, HelpCircle, LogOut, ChevronRight, Zap,
-  DollarSign, Eye, Gift, Star, ArrowRight, Gem, Target, CircleDollarSign, Crown, Phone, PartyPopper, LucideIcon
+  DollarSign, Eye, Gift, Star, ArrowRight, Gem, Target, CircleDollarSign, 
+  Crown, Phone, PartyPopper, LucideIcon, Mail, MapPin, ChevronUp,
+  Facebook, Twitter, Instagram, Youtube
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 
 const sidebarItems = [
   { icon: LayoutGrid, label: "Dashboard", path: "/" },
@@ -24,51 +28,88 @@ const sidebarItems = [
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
 
-const adCategories: { label: string; icon: LucideIcon; badge?: boolean; path: string; isLogout?: boolean }[] = [
-  { label: "Dashboard", icon: LayoutGrid, path: "/" },
-  { label: "Exclusives", icon: Gem, path: "/exclusives" },
-  { label: "Ad's Hub", icon: Target, path: "/ads-hub" },
-  { label: "Payouts", icon: CircleDollarSign, badge: true, path: "/withdrawals" },
-  { label: "Status", icon: Crown, path: "/status" },
-  { label: "Events", icon: PartyPopper, path: "/events" },
-  { label: "Contact", icon: Phone, path: "/contact" },
-  { label: "Sign Out", icon: LogOut, path: "/api/logout", isLogout: true },
-];
-
 export default function Dashboard() {
   const { user, isLoading: isUserLoading } = useAuth();
   const { data: ads, isLoading: isAdsLoading } = useAds();
   const { mutate: clickAd, isPending: isClicking } = useClickAd();
-  const [activeCategory, setActiveCategory] = useState("");
   const [activeSidebar, setActiveSidebar] = useState("/");
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
-  const [currentAdIndex, setCurrentAdIndex] = useState(0);
+  const [currentSlide, setCurrentSlide] = useState(0);
   const [, setLocation] = useLocation();
+  const [email, setEmail] = useState("");
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // Fetch site settings
+  const { data: settings } = useQuery<Record<string, string>>({
+    queryKey: ["/api/settings"],
+  });
+
+  // Fetch slides
+  const { data: slides } = useQuery<any[]>({
+    queryKey: ["/api/slides"],
+  });
+
+  // Countdown timer state
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
-    if (ads && ads.length > 0) {
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 1);
+    endDate.setHours(23, 59, 59, 999);
+
+    const timer = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = endDate.getTime() - now;
+
+      if (distance > 0) {
+        setCountdown({
+          days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((distance % (1000 * 60)) / 1000)
+        });
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  // Slide rotation
+  useEffect(() => {
+    if (slides && slides.length > 1) {
       const timer = setInterval(() => {
-        setCurrentAdIndex((prev) => (prev + 1) % ads.length);
+        setCurrentSlide((prev) => (prev + 1) % slides.length);
       }, 5000);
       return () => clearInterval(timer);
     }
-  }, [ads]);
+  }, [slides]);
+
+  // Scroll to top button
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleLogout = () => {
     window.location.href = "/api/logout";
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   if (isUserLoading || isAdsLoading) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex">
+      <div className="min-h-screen bg-black flex">
         <div className="w-20 bg-zinc-900" />
         <div className="flex-1 p-6">
           <div className="space-y-4">
             <Skeleton className="h-8 w-48 bg-zinc-800" />
-            <div className="grid grid-cols-3 gap-6">
-              <Skeleton className="h-64 bg-zinc-800 rounded-2xl" />
-              <Skeleton className="h-64 bg-zinc-800 rounded-2xl col-span-2" />
-            </div>
+            <Skeleton className="h-32 bg-zinc-800 rounded-2xl" />
+            <Skeleton className="h-64 bg-zinc-800 rounded-2xl" />
           </div>
         </div>
       </div>
@@ -76,25 +117,27 @@ export default function Dashboard() {
   }
 
   const userData = user as any || {};
-  const balance = Number(userData.milestoneAmount || 0).toFixed(2);
-  const dailyReward = Number(userData.milestoneReward || 0).toFixed(2);
-  const totalAds = userData.totalAdsCompleted || 0;
-  const pendingAmount = Number(userData.pendingAmount || 0).toFixed(2);
-  const ongoingMilestone = Number(userData.ongoingMilestone || 0).toFixed(2);
-  const destinationAmount = Number(userData.destinationAmount || 0).toFixed(2);
-  const points = userData.points || 0;
   const firstName = userData.firstName || "User";
-  
-  // Payout unlock - requires 28 ads completed
+  const username = userData.username || userData.email?.split('@')[0] || "user";
+  const status = userData.status || "active";
+  const totalAds = userData.totalAdsCompleted || 0;
   const PAYOUT_UNLOCK_ADS = 28;
   const canRequestPayout = totalAds >= PAYOUT_UNLOCK_ADS;
-  const adsUntilPayout = Math.max(0, PAYOUT_UNLOCK_ADS - totalAds);
-  const payoutProgress = Math.min(100, (totalAds / PAYOUT_UNLOCK_ADS) * 100);
 
-  const featuredAd = ads?.[currentAdIndex];
+  const marqueeText = settings?.marqueeText || "EARN MORE TODAY >>> CLICK ADS & WIN >>> RATING ADS >>> EARN MORE TODAY >>> CLICK ADS & WIN";
+  const flashSaleTitle = settings?.flashSaleTitle || "Flash";
+  const flashSaleSubtitle = settings?.flashSaleSubtitle || "Sale";
+  const flashSaleDescription = settings?.flashSaleDescription || "Limited time offer - Don't miss out!";
+  const eventTitle = settings?.eventTitle || "Event Space";
+  const eventDescription = settings?.eventDescription || "Join exclusive events, webinars, and community gatherings.";
+  const eventImage = settings?.eventImage || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800";
+  const contactPhone = settings?.contactPhone || "+94 11 123 4567";
+  const contactEmail = settings?.contactEmail || "support@odelads.com";
+  const contactAddress = settings?.contactAddress || "123 Business Street, Colombo, Sri Lanka";
+  const copyrightText = settings?.copyrightText || "Copyright 2026 ODEL-ADS. All rights reserved.";
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex text-white font-sans">
+    <div className="min-h-screen bg-black text-white font-sans">
       {/* Sidebar */}
       <motion.aside 
         initial={{ width: 80 }}
@@ -177,256 +220,275 @@ export default function Dashboard() {
         </div>
       </motion.aside>
 
-      {/* Main Content */}
+      {/* Main Content - Scrollable */}
       <motion.main 
         animate={{ marginLeft: sidebarExpanded ? 200 : 80 }}
         transition={{ duration: 0.3 }}
-        className="flex-1 p-6 overflow-auto"
+        className="min-h-screen"
       >
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
+        {/* Marquee Banner */}
+        <div className="bg-gradient-to-r from-amber-700 via-amber-600 to-amber-700 py-2 overflow-hidden">
           <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-8"
+            animate={{ x: [0, -1000] }}
+            transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
+            className="flex whitespace-nowrap"
           >
-            <div className="shrink-0">
-              <h1 className="text-3xl font-bold mb-1">Hi {firstName}!</h1>
-              <p className="text-zinc-400">Welcome back to your earnings dashboard</p>
-            </div>
-            
-            {/* Category Tabs */}
-            <div className="flex items-center gap-2 flex-wrap justify-end flex-1">
-              {adCategories
-                .filter(cat => cat.label !== "Payouts" || canRequestPayout)
-                .map((cat, i) => (
-                <motion.button
-                  key={cat.label}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 * i }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => cat.isLogout ? window.location.href = cat.path : setLocation(cat.path)}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-1.5 ${
-                    activeCategory === cat.label
-                      ? "bg-orange-500 text-white"
-                      : "bg-zinc-800/50 text-zinc-400 hover:bg-zinc-800 hover:text-white"
-                  }`}
-                  data-testid={`tab-${cat.label.toLowerCase().replace(/[' ]/g, '-')}`}
-                >
-                  <cat.icon className="w-4 h-4" />
-                  <span>{cat.label}</span>
-                  {cat.badge && <Star className="w-3 h-3 ml-0.5 text-yellow-400" />}
-                </motion.button>
+            <span className="text-white font-bold text-sm flex items-center gap-2">
+              {marqueeText.split('>>>').map((text, i) => (
+                <span key={i} className="flex items-center gap-2">
+                  {text.trim()}
+                  {i < marqueeText.split('>>>').length - 1 && (
+                    <>
+                      <span className="text-amber-200">&gt;&gt;&gt;</span>
+                      <DollarSign className="w-4 h-4 text-yellow-300" />
+                    </>
+                  )}
+                </span>
               ))}
-            </div>
+              <span className="ml-8">{marqueeText}</span>
+            </span>
           </motion.div>
+        </div>
 
-          <div className="grid lg:grid-cols-3 gap-6">
-            {/* Left Column - Stats */}
-            <div className="space-y-6">
+        <div className="p-4 md:p-6 space-y-6">
+          {/* Welcome Card */}
+          <Card className="bg-zinc-900 border-zinc-700 border-2 rounded-2xl">
+            <CardContent className="p-6 flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold text-white" data-testid="text-welcome">
+                  Welcome, {firstName}
+                </h1>
+                <p className="text-zinc-400">@{username}</p>
+              </div>
+              <div className={`px-4 py-2 rounded-full flex items-center gap-2 ${
+                status === 'active' ? 'bg-blue-500' : 
+                status === 'frozen' ? 'bg-red-500' : 'bg-yellow-500'
+              }`}>
+                <CheckCircle className="w-4 h-4" />
+                <span className="font-medium capitalize" data-testid="text-status">{status}</span>
+              </div>
+            </CardContent>
+          </Card>
 
-              {/* Payout Progress */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
-              >
-                <Card className="bg-zinc-900/50 border-zinc-800/50 backdrop-blur-xl">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-bold text-white">Payout Progress</h3>
-                      <span className="text-xs text-zinc-400">{totalAds}/{PAYOUT_UNLOCK_ADS} ads</span>
+          {/* Flash Sale Countdown */}
+          <Card className="bg-zinc-900 border-orange-500/50 border-2 rounded-2xl">
+            <CardContent className="p-6">
+              <h2 className="text-3xl font-bold mb-2">
+                <span className="text-white">{flashSaleTitle} </span>
+                <span className="text-orange-500">{flashSaleSubtitle}</span>
+              </h2>
+              <p className="text-zinc-400 mb-6">{flashSaleDescription}</p>
+              
+              <div className="grid grid-cols-4 gap-4">
+                {[
+                  { value: countdown.days.toString().padStart(2, '0'), label: 'DAYS' },
+                  { value: countdown.hours.toString().padStart(2, '0'), label: 'HOURS' },
+                  { value: countdown.minutes.toString().padStart(2, '0'), label: 'MINUTES' },
+                  { value: countdown.seconds.toString().padStart(2, '0'), label: 'SECONDS' },
+                ].map((item, i) => (
+                  <div key={i} className="text-center">
+                    <div className="bg-zinc-800 rounded-lg py-4 px-2">
+                      <span className="text-2xl md:text-4xl font-bold text-orange-500" data-testid={`countdown-${item.label.toLowerCase()}`}>
+                        {item.value}
+                      </span>
                     </div>
-                    
-                    {/* Progress Bar */}
-                    <div className="h-2 bg-zinc-800 rounded-full overflow-hidden mb-4">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${payoutProgress}%` }}
-                        transition={{ delay: 0.5, duration: 1 }}
-                        className={`h-full rounded-full ${canRequestPayout ? 'bg-green-500' : 'bg-orange-500'}`}
-                      />
-                    </div>
+                    <p className="text-xs text-zinc-500 mt-2">{item.label}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
-                    {canRequestPayout ? (
-                      <Button 
-                        onClick={() => setLocation('/withdrawals')}
-                        className="w-full bg-green-600 text-white font-bold"
-                        data-testid="button-request-payout"
-                      >
-                        <CircleDollarSign className="w-4 h-4 mr-2" />
-                        Request Payout
-                      </Button>
-                    ) : (
-                      <div className="text-center">
-                        <p className="text-zinc-400 text-sm mb-2">
-                          Complete <span className="text-orange-400 font-bold">{adsUntilPayout}</span> more ads to unlock payout
-                        </p>
-                        <div className="flex items-center justify-center gap-2 text-xs text-zinc-500">
-                          <Clock className="w-3 h-3" />
-                          <span>Payout unlocks at 28 ads</span>
-                        </div>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </div>
-
-            {/* Right Column - Featured Ad & Grid */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Featured Ad Hero */}
+          {/* Slides */}
+          {slides && slides.length > 0 && (
+            <div className="relative">
               <AnimatePresence mode="wait">
-                {featuredAd && (
-                  <motion.div
-                    key={featuredAd.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.5 }}
-                    className="relative rounded-2xl overflow-hidden h-[320px] group cursor-pointer"
-                    onClick={() => {
-                      window.open(featuredAd.targetUrl, "_blank");
-                      clickAd(featuredAd.id);
-                    }}
-                  >
-                    <img 
-                      src={featuredAd.imageUrl} 
-                      alt={featuredAd.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                    
-                    {/* Live Badge */}
-                    <motion.div 
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="absolute top-4 left-4 flex items-center gap-2 bg-red-500 px-3 py-1.5 rounded-full"
-                    >
-                      <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                      <span className="text-xs font-bold text-white">LIVE</span>
-                    </motion.div>
-
-                    {/* Stats Overlay */}
-                    <div className="absolute top-4 right-4 flex items-center gap-2">
-                      {[
-                        { icon: Star, value: "4.8" },
-                        { icon: Eye, value: "1.2k" },
-                        { icon: Zap, value: `${Number(featuredAd.price).toFixed(0)} LKR` },
-                      ].map((stat, i) => (
-                        <motion.div
-                          key={i}
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.2 + (i * 0.1) }}
-                          className="flex items-center gap-1 bg-black/40 backdrop-blur-md px-2 py-1 rounded-full text-xs text-white"
-                        >
-                          <stat.icon className="w-3 h-3" />
-                          <span>{stat.value}</span>
-                        </motion.div>
-                      ))}
-                    </div>
-
-                    {/* Bottom Content */}
-                    <div className="absolute bottom-0 left-0 right-0 p-6">
-                      <div className="flex items-end justify-between">
-                        <div className="flex items-center gap-4">
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            className="w-14 h-14 rounded-full bg-white flex items-center justify-center"
-                          >
-                            <Play className="w-6 h-6 text-black fill-black ml-1" />
-                          </motion.button>
-                          <div>
-                            <p className="text-white font-bold text-lg">{featuredAd.title}</p>
-                            <p className="text-zinc-300 text-sm">{featuredAd.description}</p>
-                          </div>
-                        </div>
-                        <motion.div
-                          whileHover={{ x: 5 }}
-                          className="flex items-center gap-2 text-white"
-                        >
-                          <span className="text-sm">Watch Now</span>
-                          <ArrowRight className="w-4 h-4" />
-                        </motion.div>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
+                <motion.div
+                  key={currentSlide}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="relative rounded-2xl overflow-hidden"
+                >
+                  <img 
+                    src={slides[currentSlide]?.imageUrl || eventImage} 
+                    alt={slides[currentSlide]?.title || "Slide"}
+                    className="w-full h-64 object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent" />
+                  <div className="absolute bottom-6 left-6">
+                    <h3 className="text-2xl font-bold text-white">{slides[currentSlide]?.title}</h3>
+                    <p className="text-zinc-300">{slides[currentSlide]?.description}</p>
+                    {slides[currentSlide]?.buttonText && (
+                      <Button className="mt-4 bg-orange-500 hover:bg-orange-600" data-testid="button-slide-action">
+                        {slides[currentSlide]?.buttonText}
+                      </Button>
+                    )}
+                  </div>
+                </motion.div>
               </AnimatePresence>
-
-              {/* Ad Indicators */}
-              {ads && ads.length > 0 && (
-                <div className="flex justify-center gap-2">
-                  {ads.slice(0, 5).map((_, i) => (
-                    <motion.button
+              
+              {slides.length > 1 && (
+                <div className="flex justify-center gap-2 mt-4">
+                  {slides.map((_, i) => (
+                    <button
                       key={i}
-                      onClick={() => setCurrentAdIndex(i)}
-                      whileHover={{ scale: 1.2 }}
+                      onClick={() => setCurrentSlide(i)}
                       className={`w-2 h-2 rounded-full transition-all ${
-                        i === currentAdIndex ? "w-6 bg-orange-500" : "bg-zinc-600"
+                        i === currentSlide ? "w-6 bg-orange-500" : "bg-zinc-600"
                       }`}
                     />
                   ))}
                 </div>
               )}
+            </div>
+          )}
 
-              {/* Ad Grid */}
-              <div className="grid grid-cols-3 gap-4">
-                {ads?.slice(0, 3).map((ad, i) => (
-                  <motion.div
-                    key={ad.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 + (i * 0.1) }}
-                    whileHover={{ scale: 1.03, y: -5 }}
-                    className="relative rounded-xl overflow-hidden h-40 group cursor-pointer"
-                    onClick={() => {
-                      window.open(ad.targetUrl, "_blank");
-                      clickAd(ad.id);
-                    }}
-                    data-testid={`ad-card-${ad.id}`}
-                  >
-                    <img 
-                      src={ad.imageUrl} 
-                      alt={ad.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-                    <div className="absolute bottom-3 left-3 right-3">
-                      <p className="text-white font-medium text-sm truncate">{ad.title}</p>
-                      <p className="text-zinc-400 text-xs">Earn {Number(ad.price).toFixed(2)} LKR</p>
-                    </div>
-                    <motion.div 
-                      initial={{ opacity: 0 }}
-                      whileHover={{ opacity: 1 }}
-                      className="absolute top-2 right-2 w-8 h-8 rounded-full bg-red-500/80 flex items-center justify-center"
-                    >
-                      <Play className="w-4 h-4 text-white fill-white" />
-                    </motion.div>
-                  </motion.div>
-                ))}
+          {/* Event Space */}
+          <Card className="bg-zinc-900 border-zinc-700 border-2 rounded-2xl overflow-hidden">
+            <div className="relative h-64">
+              <img 
+                src={eventImage} 
+                alt="Event Space"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent" />
+              <div className="absolute inset-0 p-6 flex flex-col justify-center">
+                <h3 className="text-2xl font-bold text-white mb-2">{eventTitle}</h3>
+                <p className="text-zinc-300 mb-4">{eventDescription}</p>
+                <Button 
+                  className="w-fit bg-orange-500 hover:bg-orange-600"
+                  onClick={() => setLocation('/events')}
+                  data-testid="button-explore-events"
+                >
+                  Explore Events
+                </Button>
+              </div>
+            </div>
+          </Card>
+
+          {/* Newsletter Signup */}
+          <Card className="bg-zinc-900 border-zinc-700 border-2 rounded-2xl">
+            <CardContent className="p-6 text-center">
+              <h3 className="text-xl font-bold text-white mb-2">Sign up for Newsletter</h3>
+              <p className="text-zinc-400 mb-4">Get the latest updates and offers</p>
+              <div className="flex gap-2 max-w-md mx-auto">
+                <Input 
+                  type="email"
+                  placeholder="Enter your email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="bg-zinc-800 border-zinc-700 text-white"
+                  data-testid="input-newsletter-email"
+                />
+                <Button className="bg-zinc-700 hover:bg-zinc-600 text-white" data-testid="button-subscribe">
+                  Subscribe
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Footer */}
+          <footer className="pt-8 border-t border-zinc-800">
+            <div className="grid md:grid-cols-4 gap-8 mb-8">
+              {/* Customer Care */}
+              <div>
+                <h4 className="text-orange-500 font-bold mb-4">Customer Care</h4>
+                <ul className="space-y-2 text-zinc-400">
+                  <li><Link href="/refund" className="hover:text-white">Return & Refund</Link></li>
+                  <li><Link href="/contact" className="hover:text-white">Contact Us</Link></li>
+                  <li><Link href="/payment" className="hover:text-white">Service Payment</Link></li>
+                  <li><Link href="/faq" className="hover:text-white">FAQs</Link></li>
+                </ul>
               </div>
 
-              {(!ads || ads.length === 0) && (
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="bg-zinc-900/50 rounded-2xl border border-zinc-800/50 p-12 text-center"
-                >
-                  <div className="w-16 h-16 rounded-full bg-zinc-800 flex items-center justify-center mx-auto mb-4">
-                    <Play className="w-8 h-8 text-zinc-500" />
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-2">No ads available</h3>
-                  <p className="text-zinc-400">Check back later for more earning opportunities</p>
-                </motion.div>
-              )}
+              {/* Get To Know Us */}
+              <div>
+                <h4 className="text-orange-500 font-bold mb-4">Get To Know Us</h4>
+                <ul className="space-y-2 text-zinc-400">
+                  <li><Link href="/about" className="hover:text-white">About Us</Link></li>
+                  <li><Link href="/careers" className="hover:text-white">Careers</Link></li>
+                  <li><Link href="/blog" className="hover:text-white">Blog</Link></li>
+                </ul>
+                <div className="flex gap-3 mt-4">
+                  <a href="#" className="w-8 h-8 rounded-full border border-zinc-600 flex items-center justify-center hover:border-white">
+                    <Facebook className="w-4 h-4" />
+                  </a>
+                  <a href="#" className="w-8 h-8 rounded-full border border-zinc-600 flex items-center justify-center hover:border-white">
+                    <Twitter className="w-4 h-4" />
+                  </a>
+                  <a href="#" className="w-8 h-8 rounded-full border border-zinc-600 flex items-center justify-center hover:border-white">
+                    <Instagram className="w-4 h-4" />
+                  </a>
+                  <a href="#" className="w-8 h-8 rounded-full border border-zinc-600 flex items-center justify-center hover:border-white">
+                    <Youtube className="w-4 h-4" />
+                  </a>
+                </div>
+              </div>
+
+              {/* Let Us Help You */}
+              <div>
+                <h4 className="text-orange-500 font-bold mb-4">Let Us Help You</h4>
+                <ul className="space-y-2 text-zinc-400">
+                  <li><Link href="/settings" className="hover:text-white">My Account</Link></li>
+                  <li><Link href="/withdrawals" className="hover:text-white">My Orders</Link></li>
+                  <li><Link href="/terms" className="hover:text-white">Terms Of Use</Link></li>
+                  <li><Link href="/privacy" className="hover:text-white">Privacy Policy</Link></li>
+                </ul>
+              </div>
+
+              {/* Contact Info */}
+              <div>
+                <h4 className="text-orange-500 font-bold mb-4">Contact Info</h4>
+                <ul className="space-y-3 text-zinc-400">
+                  <li className="flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-orange-500" />
+                    <span>{contactPhone}</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-orange-500" />
+                    <span>{contactEmail}</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <MapPin className="w-4 h-4 text-orange-500 mt-1" />
+                    <span>{contactAddress}</span>
+                  </li>
+                </ul>
+              </div>
             </div>
-          </div>
+
+            {/* Payment Methods */}
+            <div className="flex flex-wrap items-center justify-center gap-4 py-4 border-t border-zinc-800">
+              <span className="text-zinc-400 text-sm">We Accept:</span>
+              <div className="flex gap-2">
+                <span className="bg-white text-black px-3 py-1 rounded text-sm font-bold">VISA</span>
+                <span className="bg-white text-black px-3 py-1 rounded text-sm font-bold">MC</span>
+                <span className="bg-white text-black px-3 py-1 rounded text-sm font-bold">AMEX</span>
+              </div>
+            </div>
+
+            {/* Copyright */}
+            <div className="text-center py-4 text-zinc-500 text-sm">
+              {copyrightText}
+            </div>
+          </footer>
         </div>
+
+        {/* Scroll to Top Button */}
+        <AnimatePresence>
+          {showScrollTop && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0 }}
+              onClick={scrollToTop}
+              className="fixed bottom-6 right-6 w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center shadow-lg hover:bg-orange-600 z-50"
+              data-testid="button-scroll-top"
+            >
+              <ChevronUp className="w-6 h-6 text-white" />
+            </motion.button>
+          )}
+        </AnimatePresence>
       </motion.main>
     </div>
   );
