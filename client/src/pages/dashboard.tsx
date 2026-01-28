@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   Wallet, TrendingUp, CheckCircle, Clock, Play, Home, Settings, 
   LayoutGrid, CreditCard, HelpCircle, LogOut, ChevronRight, Zap,
-  DollarSign, Eye, Gift, Star, ArrowRight, Gem, Target, CircleDollarSign, Crown, PartyPopper, LucideIcon
+  DollarSign, Eye, Gift, Star, ArrowRight, Gem, Target, CircleDollarSign, Crown, Phone, LucideIcon
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
@@ -26,7 +26,7 @@ const adCategories: { label: string; icon: LucideIcon; badge?: boolean; path: st
   { label: "Ad's Hub", icon: Target, path: "/ads-hub" },
   { label: "Payouts", icon: CircleDollarSign, badge: true, path: "/withdrawals" },
   { label: "Status", icon: Crown, path: "/status" },
-  { label: "Events", icon: PartyPopper, path: "/events" },
+  { label: "Contact", icon: Phone, path: "/contact" },
 ];
 
 export default function Dashboard() {
