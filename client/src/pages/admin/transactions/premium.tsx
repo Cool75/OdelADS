@@ -8,6 +8,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -18,88 +25,95 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Star, Search, DollarSign, RotateCcw, AlertTriangle, Plus, Shield, UserCheck, UserX, UserCog } from "lucide-react";
-import { useLocation } from "wouter";
+import { Star, Search, Phone, RotateCcw, Pencil, Plus, X } from "lucide-react";
 
 export default function AdminPremiumManage() {
   const { user } = useAuth();
   const { data: users } = useUsersList();
   const { toast } = useToast();
-  const [location] = useLocation();
   
-  const urlParams = new URLSearchParams(location.split("?")[1] || "");
-  const preselectedUserId = urlParams.get("userId");
-  
-  const [selectedUserId, setSelectedUserId] = useState<string>(preselectedUserId || "");
   const [search, setSearch] = useState("");
-  const [depositAmount, setDepositAmount] = useState("");
-  const [resetField, setResetField] = useState("");
-  const [restrictionData, setRestrictionData] = useState({
-    adsLimit: "",
-    deposit: "",
-    commission: "",
-    pendingAmount: ""
-  });
-
-  const selectedUser = users?.find(u => u.id === selectedUserId);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [dialogType, setDialogType] = useState<string>("");
+  const [inputValue, setInputValue] = useState("");
+  const [inputValue2, setInputValue2] = useState("");
+  const [inputValue3, setInputValue3] = useState("");
+  const [inputValue4, setInputValue4] = useState("");
 
   const depositMutation = useMutation({
-    mutationFn: async () => {
-      return apiRequest("POST", `/api/users/${selectedUserId}/deposit`, { amount: depositAmount });
+    mutationFn: async ({ userId, amount }: { userId: string, amount: string }) => {
+      return apiRequest("POST", `/api/users/${userId}/deposit`, { amount });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
       toast({ title: "Deposit added successfully" });
-      setDepositAmount("");
+      closeDialog();
     }
   });
 
   const resetMutation = useMutation({
-    mutationFn: async () => {
-      return apiRequest("POST", `/api/users/${selectedUserId}/reset`, { field: resetField });
+    mutationFn: async ({ userId, field }: { userId: string, field: string }) => {
+      return apiRequest("POST", `/api/users/${userId}/reset`, { field });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
-      toast({ title: `${resetField} has been reset` });
-      setResetField("");
+      toast({ title: "Field reset successfully" });
+      closeDialog();
     }
   });
 
   const restrictMutation = useMutation({
-    mutationFn: async () => {
-      return apiRequest("POST", `/api/users/${selectedUserId}/restrict`, {
-        adsLimit: parseInt(restrictionData.adsLimit) || null,
-        deposit: restrictionData.deposit || null,
-        commission: restrictionData.commission || null,
-        pendingAmount: restrictionData.pendingAmount || "0"
-      });
+    mutationFn: async ({ userId, data }: { userId: string, data: any }) => {
+      return apiRequest("POST", `/api/users/${userId}/restrict`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
-      toast({ title: "Promotion/Restriction applied" });
-      setRestrictionData({ adsLimit: "", deposit: "", commission: "", pendingAmount: "" });
+      toast({ title: "Promotion applied" });
+      closeDialog();
     }
   });
 
-  const unrestrictMutation = useMutation({
-    mutationFn: async () => {
-      return apiRequest("POST", `/api/users/${selectedUserId}/unrestrict`, {});
+  const setBalanceMutation = useMutation({
+    mutationFn: async ({ userId, amount }: { userId: string, amount: string }) => {
+      return apiRequest("POST", `/api/users/${userId}/set-balance`, { amount });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
-      toast({ title: "Restriction removed" });
+      toast({ title: "Balance set successfully" });
+      closeDialog();
     }
   });
 
-  const updateStatusMutation = useMutation({
-    mutationFn: async (status: string) => {
-      return apiRequest("PATCH", `/api/users/${selectedUserId}/status`, { status });
+  const addFieldMutation = useMutation({
+    mutationFn: async ({ userId, field, amount }: { userId: string, field: string, amount: string }) => {
+      return apiRequest("POST", `/api/users/${userId}/add-field`, { field, amount });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
-      toast({ title: "User status updated" });
+      toast({ title: "Amount added successfully" });
+      closeDialog();
     }
   });
+
+  const updateUserMutation = useMutation({
+    mutationFn: async ({ userId, data }: { userId: string, data: any }) => {
+      return apiRequest("PATCH", `/api/users/${userId}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      toast({ title: "User updated successfully" });
+      closeDialog();
+    }
+  });
+
+  const closeDialog = () => {
+    setSelectedUser(null);
+    setDialogType("");
+    setInputValue("");
+    setInputValue2("");
+    setInputValue3("");
+    setInputValue4("");
+  };
 
   if (!(user as any)?.isAdmin) {
     return <div className="p-8 text-center text-red-500">Access Denied</div>;
@@ -108,8 +122,14 @@ export default function AdminPremiumManage() {
   const filteredUsers = users?.filter(u => 
     u.firstName?.toLowerCase().includes(search.toLowerCase()) ||
     u.lastName?.toLowerCase().includes(search.toLowerCase()) ||
-    u.email?.toLowerCase().includes(search.toLowerCase())
+    u.email?.toLowerCase().includes(search.toLowerCase()) ||
+    (u as any).mobileNumber?.includes(search)
   ) || [];
+
+  const openDialog = (user: any, type: string) => {
+    setSelectedUser(user);
+    setDialogType(type);
+  };
 
   return (
     <AdminLayout>
@@ -123,13 +143,11 @@ export default function AdminPremiumManage() {
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle className="text-lg">Select User</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="relative mb-4">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between gap-4">
+            <CardTitle>All Users</CardTitle>
+            <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search users..."
@@ -139,324 +157,496 @@ export default function AdminPremiumManage() {
                 data-testid="input-search-premium"
               />
             </div>
-            <div className="space-y-2 max-h-[400px] overflow-y-auto">
-              {filteredUsers.map((u) => (
-                <button
-                  key={u.id}
-                  onClick={() => setSelectedUserId(u.id)}
-                  className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors ${
-                    selectedUserId === u.id 
-                      ? "bg-primary/10 border border-primary/30" 
-                      : "hover:bg-muted"
-                  }`}
-                  data-testid={`button-select-user-${u.id}`}
-                >
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={u.profileImageUrl || undefined} />
-                    <AvatarFallback className="bg-primary/20 text-primary">
-                      {u.firstName?.[0] || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{u.firstName} {u.lastName}</p>
-                    <p className="text-xs text-muted-foreground truncate">{u.email}</p>
-                  </div>
-                  <Badge
-                    variant={u.status === "active" ? "default" : "secondary"}
-                    className={u.status === "active" ? "bg-green-500/20 text-green-500" : ""}
-                  >
-                    {u.status}
-                  </Badge>
-                </button>
-              ))}
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b text-left text-sm text-muted-foreground">
+                  <th className="pb-3 pr-4">User</th>
+                  <th className="pb-3 pr-4">Phone</th>
+                  <th className="pb-3 pr-4">Ads</th>
+                  <th className="pb-3 pr-4">Balance</th>
+                  <th className="pb-3">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredUsers.map((u) => (
+                  <tr key={u.id} className="border-b last:border-0">
+                    <td className="py-3 pr-4">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={u.profileImageUrl || undefined} />
+                          <AvatarFallback className="bg-primary/20 text-primary text-xs">
+                            {u.firstName?.[0] || "U"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium text-sm">{u.firstName} {u.lastName}</p>
+                          <p className="text-xs text-muted-foreground">{u.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-3 pr-4">
+                      <div className="flex items-center gap-1 text-sm">
+                        <Phone className="h-3 w-3" />
+                        <span>{(u as any).mobileNumber || "N/A"}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 pr-4">
+                      <span className="text-sm font-medium">{u.totalAdsCompleted || 0}/</span>
+                      <span className="text-sm text-muted-foreground">{u.restrictionAdsLimit || 28}</span>
+                    </td>
+                    <td className="py-3 pr-4">
+                      <span className="text-sm font-medium">LKR {parseFloat(u.milestoneAmount || "0").toFixed(0)}</span>
+                    </td>
+                    <td className="py-3">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <Button
+                          size="sm"
+                          className="bg-orange-500 hover:bg-orange-600 text-white h-7 px-2 text-xs"
+                          onClick={() => openDialog(u, "promotions")}
+                          data-testid={`button-promotions-${u.id}`}
+                        >
+                          Promotions
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-orange-500 text-orange-500 hover:bg-orange-500/10 h-7 px-2 text-xs"
+                          onClick={() => openDialog(u, "reset")}
+                          data-testid={`button-reset-${u.id}`}
+                        >
+                          RESET
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="bg-orange-500 hover:bg-orange-600 text-white h-7 px-2 text-xs"
+                          onClick={() => openDialog(u, "set")}
+                          data-testid={`button-set-${u.id}`}
+                        >
+                          SET
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="bg-orange-500 hover:bg-orange-600 text-white h-7 px-2 text-xs"
+                          onClick={() => openDialog(u, "add-balance")}
+                          data-testid={`button-add-balance-${u.id}`}
+                        >
+                          ADD
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="bg-orange-500 hover:bg-orange-600 text-white h-7 px-2 text-xs"
+                          onClick={() => openDialog(u, "add-reward")}
+                          data-testid={`button-add-reward-${u.id}`}
+                        >
+                          ADD
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="bg-orange-500 hover:bg-orange-600 text-white h-7 px-2 text-xs"
+                          onClick={() => openDialog(u, "add-points")}
+                          data-testid={`button-add-points-${u.id}`}
+                        >
+                          ADD
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="bg-green-600 hover:bg-green-700 text-white h-7 px-2 text-xs"
+                          onClick={() => openDialog(u, "edit-user")}
+                          data-testid={`button-edit-user-${u.id}`}
+                        >
+                          EDIT
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="bg-blue-600 hover:bg-blue-700 text-white h-7 px-2 text-xs"
+                          onClick={() => openDialog(u, "edit-bank")}
+                          data-testid={`button-edit-bank-${u.id}`}
+                        >
+                          EDIT
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Promotions Dialog */}
+      <Dialog open={dialogType === "promotions"} onOpenChange={(open) => !open && closeDialog()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Set Promotion for {selectedUser?.firstName}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Ads Limit</Label>
+              <Input
+                type="number"
+                placeholder="e.g. 50"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                data-testid="input-promo-ads-limit"
+              />
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <Label>Commission per Ad (LKR)</Label>
+              <Input
+                type="number"
+                placeholder="e.g. 100"
+                value={inputValue2}
+                onChange={(e) => setInputValue2(e.target.value)}
+                data-testid="input-promo-commission"
+              />
+            </div>
+            <div>
+              <Label>Required Deposit (LKR)</Label>
+              <Input
+                type="number"
+                placeholder="e.g. 5000"
+                value={inputValue3}
+                onChange={(e) => setInputValue3(e.target.value)}
+                data-testid="input-promo-deposit"
+              />
+            </div>
+            <div>
+              <Label>Pending Amount (LKR)</Label>
+              <Input
+                type="number"
+                placeholder="e.g. 0"
+                value={inputValue4}
+                onChange={(e) => setInputValue4(e.target.value)}
+                data-testid="input-promo-pending"
+              />
+            </div>
+            <Button
+              className="w-full bg-orange-500 hover:bg-orange-600"
+              onClick={() => restrictMutation.mutate({
+                userId: selectedUser?.id,
+                data: {
+                  adsLimit: parseInt(inputValue) || null,
+                  commission: inputValue2 || null,
+                  deposit: inputValue3 || null,
+                  pendingAmount: inputValue4 || "0"
+                }
+              })}
+              disabled={restrictMutation.isPending}
+              data-testid="button-apply-promotion"
+            >
+              Apply Promotion
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-        <div className="lg:col-span-2 space-y-6">
-          {selectedUser ? (
-            <>
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">User Details</CardTitle>
-                    <Badge
-                      variant={selectedUser.status === "active" ? "default" : "secondary"}
-                      className={selectedUser.status === "active" ? "bg-green-500/20 text-green-500" : ""}
-                    >
-                      {selectedUser.status}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-4 mb-6">
-                    <Avatar className="h-16 w-16">
-                      <AvatarImage src={selectedUser.profileImageUrl || undefined} />
-                      <AvatarFallback className="bg-primary/20 text-primary text-xl">
-                        {selectedUser.firstName?.[0] || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <h3 className="text-xl font-bold">{selectedUser.firstName} {selectedUser.lastName}</h3>
-                      <p className="text-muted-foreground">{selectedUser.email}</p>
-                      {selectedUser.isAdmin && (
-                        <Badge className="bg-amber-500/20 text-amber-500 mt-1">
-                          <Shield className="h-3 w-3 mr-1" />
-                          Admin
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
+      {/* Reset Dialog */}
+      <Dialog open={dialogType === "reset"} onOpenChange={(open) => !open && closeDialog()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reset Field for {selectedUser?.firstName}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Select Field to Reset</Label>
+              <Select value={inputValue} onValueChange={setInputValue}>
+                <SelectTrigger data-testid="select-reset-field">
+                  <SelectValue placeholder="Choose field" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="milestoneAmount">Milestone Amount</SelectItem>
+                  <SelectItem value="milestoneReward">Milestone Reward</SelectItem>
+                  <SelectItem value="ongoingMilestone">Ongoing Milestone</SelectItem>
+                  <SelectItem value="destinationAmount">Destination Amount</SelectItem>
+                  <SelectItem value="pendingAmount">Pending Amount</SelectItem>
+                  <SelectItem value="totalAdsCompleted">Total Ads Completed</SelectItem>
+                  <SelectItem value="restrictedAdsCompleted">Restricted Ads Completed</SelectItem>
+                  <SelectItem value="points">Points</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button
+              variant="destructive"
+              className="w-full"
+              onClick={() => resetMutation.mutate({ userId: selectedUser?.id, field: inputValue })}
+              disabled={!inputValue || resetMutation.isPending}
+              data-testid="button-confirm-reset"
+            >
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Reset to Zero
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <p className="text-xs text-muted-foreground">Milestone Amount</p>
-                      <p className="text-lg font-bold text-primary">
-                        LKR {parseFloat(selectedUser.milestoneAmount || "0").toFixed(2)}
-                      </p>
-                    </div>
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <p className="text-xs text-muted-foreground">Today's Reward</p>
-                      <p className="text-lg font-bold text-amber-500">
-                        LKR {parseFloat(selectedUser.milestoneReward || "0").toFixed(2)}
-                      </p>
-                    </div>
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <p className="text-xs text-muted-foreground">Ads Completed</p>
-                      <p className="text-lg font-bold">{selectedUser.totalAdsCompleted || 0}</p>
-                    </div>
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <p className="text-xs text-muted-foreground">Points</p>
-                      <p className="text-lg font-bold">{selectedUser.points || 0}</p>
-                    </div>
-                  </div>
+      {/* Set Balance Dialog */}
+      <Dialog open={dialogType === "set"} onOpenChange={(open) => !open && closeDialog()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Set Balance for {selectedUser?.firstName}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Current Balance: LKR {parseFloat(selectedUser?.milestoneAmount || "0").toFixed(2)}</Label>
+            </div>
+            <div>
+              <Label>New Balance (LKR)</Label>
+              <Input
+                type="number"
+                placeholder="Enter new balance"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                data-testid="input-set-balance"
+              />
+              <p className="text-xs text-muted-foreground mt-1">Use negative values to set negative balance</p>
+            </div>
+            <Button
+              className="w-full bg-orange-500 hover:bg-orange-600"
+              onClick={() => setBalanceMutation.mutate({ userId: selectedUser?.id, amount: inputValue })}
+              disabled={!inputValue || setBalanceMutation.isPending}
+              data-testid="button-confirm-set"
+            >
+              Set Balance
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-                  {selectedUser.restrictionAdsLimit && (
-                    <div className="mt-4 p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg">
-                      <div className="flex items-center gap-2 text-amber-500 mb-2">
-                        <AlertTriangle className="h-4 w-4" />
-                        <span className="font-medium">Promotion Active</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-4 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">Ads Limit:</span>
-                          <span className="ml-2 font-medium">{selectedUser.restrictionAdsLimit}</span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Completed:</span>
-                          <span className="ml-2 font-medium">{selectedUser.restrictedAdsCompleted || 0}</span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Commission:</span>
-                          <span className="ml-2 font-medium">LKR {selectedUser.restrictionCommission || "0"}</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+      {/* Add Balance Dialog */}
+      <Dialog open={dialogType === "add-balance"} onOpenChange={(open) => !open && closeDialog()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add to Balance - {selectedUser?.firstName}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Current Balance: LKR {parseFloat(selectedUser?.milestoneAmount || "0").toFixed(2)}</Label>
+            </div>
+            <div>
+              <Label>Amount to Add (LKR)</Label>
+              <Input
+                type="number"
+                placeholder="Enter amount"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                data-testid="input-add-balance"
+              />
+            </div>
+            <Button
+              className="w-full bg-orange-500 hover:bg-orange-600"
+              onClick={() => depositMutation.mutate({ userId: selectedUser?.id, amount: inputValue })}
+              disabled={!inputValue || depositMutation.isPending}
+              data-testid="button-confirm-add-balance"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Add to Balance
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-              <div className="grid md:grid-cols-3 gap-6">
-                {/* Status Change Card */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <UserCog className="h-5 w-5 text-purple-500" />
-                      Change Status
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <Button
-                        variant={selectedUser.status === "active" ? "default" : "outline"}
-                        className="w-full justify-start"
-                        onClick={() => updateStatusMutation.mutate("active")}
-                        disabled={updateStatusMutation.isPending || selectedUser.status === "active"}
-                        data-testid="button-status-active"
-                      >
-                        <UserCheck className="mr-2 h-4 w-4 text-green-500" />
-                        Set Active
-                      </Button>
-                      <Button
-                        variant={selectedUser.status === "pending" ? "default" : "outline"}
-                        className="w-full justify-start"
-                        onClick={() => updateStatusMutation.mutate("pending")}
-                        disabled={updateStatusMutation.isPending || selectedUser.status === "pending"}
-                        data-testid="button-status-pending"
-                      >
-                        <UserCog className="mr-2 h-4 w-4 text-amber-500" />
-                        Set Pending
-                      </Button>
-                      <Button
-                        variant={selectedUser.status === "frozen" ? "destructive" : "outline"}
-                        className="w-full justify-start"
-                        onClick={() => updateStatusMutation.mutate("frozen")}
-                        disabled={updateStatusMutation.isPending || selectedUser.status === "frozen"}
-                        data-testid="button-status-frozen"
-                      >
-                        <UserX className="mr-2 h-4 w-4 text-red-500" />
-                        Freeze User
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+      {/* Add Reward Dialog */}
+      <Dialog open={dialogType === "add-reward"} onOpenChange={(open) => !open && closeDialog()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Milestone Reward - {selectedUser?.firstName}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Current Reward: LKR {parseFloat(selectedUser?.milestoneReward || "0").toFixed(2)}</Label>
+            </div>
+            <div>
+              <Label>Amount to Add (LKR)</Label>
+              <Input
+                type="number"
+                placeholder="Enter amount"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                data-testid="input-add-reward"
+              />
+            </div>
+            <Button
+              className="w-full bg-orange-500 hover:bg-orange-600"
+              onClick={() => addFieldMutation.mutate({ userId: selectedUser?.id, field: "milestoneReward", amount: inputValue })}
+              disabled={!inputValue || addFieldMutation.isPending}
+              data-testid="button-confirm-add-reward"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Add to Reward
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <DollarSign className="h-5 w-5 text-green-500" />
-                      Add Deposit
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div>
-                        <Label>Amount (LKR)</Label>
-                        <Input
-                          type="number"
-                          placeholder="Enter amount"
-                          value={depositAmount}
-                          onChange={(e) => setDepositAmount(e.target.value)}
-                          data-testid="input-deposit-amount"
-                        />
-                      </div>
-                      <Button
-                        className="w-full"
-                        onClick={() => depositMutation.mutate()}
-                        disabled={!depositAmount || depositMutation.isPending}
-                        data-testid="button-add-deposit"
-                      >
-                        <Plus className="mr-2 h-4 w-4" />
-                        Add to Balance
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+      {/* Add Points Dialog */}
+      <Dialog open={dialogType === "add-points"} onOpenChange={(open) => !open && closeDialog()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Points - {selectedUser?.firstName}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Current Points: {selectedUser?.points || 0}</Label>
+            </div>
+            <div>
+              <Label>Points to Add</Label>
+              <Input
+                type="number"
+                placeholder="Enter points"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                data-testid="input-add-points"
+              />
+            </div>
+            <Button
+              className="w-full bg-orange-500 hover:bg-orange-600"
+              onClick={() => addFieldMutation.mutate({ userId: selectedUser?.id, field: "points", amount: inputValue })}
+              disabled={!inputValue || addFieldMutation.isPending}
+              data-testid="button-confirm-add-points"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Add Points
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <RotateCcw className="h-5 w-5 text-blue-500" />
-                      Reset Field
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div>
-                        <Label>Select Field</Label>
-                        <Select value={resetField} onValueChange={setResetField}>
-                          <SelectTrigger data-testid="select-reset-field">
-                            <SelectValue placeholder="Choose field to reset" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="milestoneAmount">Milestone Amount</SelectItem>
-                            <SelectItem value="milestoneReward">Milestone Reward</SelectItem>
-                            <SelectItem value="destinationAmount">Destination Amount</SelectItem>
-                            <SelectItem value="ongoingMilestone">Ongoing Milestone</SelectItem>
-                            <SelectItem value="totalAdsCompleted">Total Ads Completed</SelectItem>
-                            <SelectItem value="points">Points</SelectItem>
-                            <SelectItem value="restrictedAdsCompleted">Restricted Ads Completed</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <Button
-                        variant="outline"
-                        className="w-full"
-                        onClick={() => resetMutation.mutate()}
-                        disabled={!resetField || resetMutation.isPending}
-                        data-testid="button-reset-field"
-                      >
-                        <RotateCcw className="mr-2 h-4 w-4" />
-                        Reset to Zero
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+      {/* Edit User Dialog */}
+      <Dialog open={dialogType === "edit-user"} onOpenChange={(open) => !open && closeDialog()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit User - {selectedUser?.firstName}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>First Name</Label>
+              <Input
+                placeholder="First name"
+                value={inputValue || selectedUser?.firstName || ""}
+                onChange={(e) => setInputValue(e.target.value)}
+                data-testid="input-edit-firstname"
+              />
+            </div>
+            <div>
+              <Label>Last Name</Label>
+              <Input
+                placeholder="Last name"
+                value={inputValue2 || selectedUser?.lastName || ""}
+                onChange={(e) => setInputValue2(e.target.value)}
+                data-testid="input-edit-lastname"
+              />
+            </div>
+            <div>
+              <Label>Phone</Label>
+              <Input
+                placeholder="Phone number"
+                value={inputValue3 || selectedUser?.phone || ""}
+                onChange={(e) => setInputValue3(e.target.value)}
+                data-testid="input-edit-phone"
+              />
+            </div>
+            <div>
+              <Label>Status</Label>
+              <Select value={inputValue4 || selectedUser?.status || "active"} onValueChange={setInputValue4}>
+                <SelectTrigger data-testid="select-edit-status">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="frozen">Frozen</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button
+              className="w-full bg-green-600 hover:bg-green-700"
+              onClick={() => updateUserMutation.mutate({
+                userId: selectedUser?.id,
+                data: {
+                  firstName: inputValue || selectedUser?.firstName,
+                  lastName: inputValue2 || selectedUser?.lastName,
+                  phone: inputValue3 || selectedUser?.phone,
+                  status: inputValue4 || selectedUser?.status
+                }
+              })}
+              disabled={updateUserMutation.isPending}
+              data-testid="button-save-user"
+            >
+              <Pencil className="mr-2 h-4 w-4" />
+              Save Changes
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Star className="h-5 w-5 text-amber-500" />
-                    Set Promotion / Restriction
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid md:grid-cols-4 gap-4 mb-4">
-                    <div>
-                      <Label>Ads Limit</Label>
-                      <Input
-                        type="number"
-                        placeholder="e.g. 50"
-                        value={restrictionData.adsLimit}
-                        onChange={(e) => setRestrictionData({...restrictionData, adsLimit: e.target.value})}
-                        data-testid="input-ads-limit"
-                      />
-                    </div>
-                    <div>
-                      <Label>Required Deposit</Label>
-                      <Input
-                        type="number"
-                        placeholder="e.g. 1000"
-                        value={restrictionData.deposit}
-                        onChange={(e) => setRestrictionData({...restrictionData, deposit: e.target.value})}
-                        data-testid="input-restriction-deposit"
-                      />
-                    </div>
-                    <div>
-                      <Label>Commission per Ad</Label>
-                      <Input
-                        type="number"
-                        placeholder="e.g. 5"
-                        value={restrictionData.commission}
-                        onChange={(e) => setRestrictionData({...restrictionData, commission: e.target.value})}
-                        data-testid="input-commission"
-                      />
-                    </div>
-                    <div>
-                      <Label>Pending Amount</Label>
-                      <Input
-                        type="number"
-                        placeholder="e.g. 0"
-                        value={restrictionData.pendingAmount}
-                        onChange={(e) => setRestrictionData({...restrictionData, pendingAmount: e.target.value})}
-                        data-testid="input-pending-amount"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <Button
-                      className="flex-1"
-                      onClick={() => restrictMutation.mutate()}
-                      disabled={restrictMutation.isPending}
-                      data-testid="button-apply-restriction"
-                    >
-                      Apply Promotion
-                    </Button>
-                    {selectedUser.restrictionAdsLimit && (
-                      <Button
-                        variant="destructive"
-                        onClick={() => unrestrictMutation.mutate()}
-                        disabled={unrestrictMutation.isPending}
-                        data-testid="button-remove-restriction"
-                      >
-                        Remove Restriction
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </>
-          ) : (
-            <Card>
-              <CardContent className="py-16 text-center text-muted-foreground">
-                <Star className="h-12 w-12 mx-auto mb-4 opacity-30" />
-                <p>Select a user from the list to manage their account</p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      </div>
+      {/* Edit Bank Dialog */}
+      <Dialog open={dialogType === "edit-bank"} onOpenChange={(open) => !open && closeDialog()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Bank Details - {selectedUser?.firstName}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Bank Name</Label>
+              <Input
+                placeholder="Bank name"
+                value={inputValue || selectedUser?.bankName || ""}
+                onChange={(e) => setInputValue(e.target.value)}
+                data-testid="input-edit-bankname"
+              />
+            </div>
+            <div>
+              <Label>Account Number</Label>
+              <Input
+                placeholder="Account number"
+                value={inputValue2 || selectedUser?.bankAccountNumber || ""}
+                onChange={(e) => setInputValue2(e.target.value)}
+                data-testid="input-edit-account"
+              />
+            </div>
+            <div>
+              <Label>Account Holder Name</Label>
+              <Input
+                placeholder="Account holder name"
+                value={inputValue3 || selectedUser?.bankAccountName || ""}
+                onChange={(e) => setInputValue3(e.target.value)}
+                data-testid="input-edit-holdername"
+              />
+            </div>
+            <div>
+              <Label>Branch</Label>
+              <Input
+                placeholder="Branch"
+                value={inputValue4 || selectedUser?.bankBranch || ""}
+                onChange={(e) => setInputValue4(e.target.value)}
+                data-testid="input-edit-branch"
+              />
+            </div>
+            <Button
+              className="w-full bg-blue-600 hover:bg-blue-700"
+              onClick={() => updateUserMutation.mutate({
+                userId: selectedUser?.id,
+                data: {
+                  bankName: inputValue || selectedUser?.bankName,
+                  bankAccountNumber: inputValue2 || selectedUser?.bankAccountNumber,
+                  bankAccountName: inputValue3 || selectedUser?.bankAccountName,
+                  bankBranch: inputValue4 || selectedUser?.bankBranch
+                }
+              })}
+              disabled={updateUserMutation.isPending}
+              data-testid="button-save-bank"
+            >
+              <Pencil className="mr-2 h-4 w-4" />
+              Save Bank Details
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 }

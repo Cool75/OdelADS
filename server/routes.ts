@@ -310,6 +310,48 @@ export async function registerRoutes(
     res.json(updated);
   });
 
+  // Set balance (admin can set exact balance including negative)
+  app.post("/api/users/:id/set-balance", isAuthenticated, async (req, res) => {
+    const user = req.user as any;
+    const dbUser = await storage.getUser(user.claims.sub);
+    if (!dbUser?.isAdmin) return res.status(403).json({ message: "Admin only" });
+
+    const targetId = req.params.id;
+    const { amount } = req.body;
+    await storage.setMilestoneAmount(targetId, parseFloat(amount));
+    const updated = await storage.getUser(targetId);
+    res.json(updated);
+  });
+
+  // Add to specific field (admin)
+  app.post("/api/users/:id/add-field", isAuthenticated, async (req, res) => {
+    const user = req.user as any;
+    const dbUser = await storage.getUser(user.claims.sub);
+    if (!dbUser?.isAdmin) return res.status(403).json({ message: "Admin only" });
+
+    const targetId = req.params.id;
+    const { field, amount } = req.body;
+    
+    const allowed = ["milestoneReward", "ongoingMilestone", "destinationAmount", "points"];
+    if (!allowed.includes(field)) {
+      return res.status(400).json({ message: "Field not allowed" });
+    }
+
+    const targetUser = await storage.getUser(targetId);
+    if (!targetUser) return res.status(404).json({ message: "User not found" });
+    
+    const updates: any = {};
+    if (field === "points") {
+      updates[field] = (targetUser.points || 0) + parseInt(amount);
+    } else {
+      const currentVal = parseFloat((targetUser as any)[field] || "0");
+      updates[field] = (currentVal + parseFloat(amount)).toString();
+    }
+    
+    const updated = await storage.updateUser(targetId, updates);
+    res.json(updated);
+  });
+
   // === CMS: SITE SETTINGS ===
   app.get("/api/settings", async (req, res) => {
     const settings = await storage.getSiteSettings();
