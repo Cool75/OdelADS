@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
-import { PercentCircle, ArrowLeft } from "lucide-react";
+import { PercentCircle } from "lucide-react";
 
 interface Commission {
   id: number;
@@ -36,21 +36,15 @@ export default function AdminCommissions() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <button onClick={() => window.history.back()} className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors" data-testid="button-back">
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back</span>
-        </button>
-
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center">
-            <PercentCircle className="h-6 w-6 text-purple-500" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold">Commissions</h1>
-            <p className="text-muted-foreground">{commissions?.length || 0} total commissions</p>
-          </div>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center">
+          <PercentCircle className="h-6 w-6 text-purple-500" />
         </div>
+        <div>
+          <h1 className="text-2xl font-bold">Commissions</h1>
+          <p className="text-muted-foreground">{commissions?.length || 0} total commissions</p>
+        </div>
+      </div>
 
       <Card>
         <CardContent className="p-0">
@@ -104,7 +98,6 @@ export default function AdminCommissions() {
           </Table>
         </CardContent>
       </Card>
-      </div>
     </AdminLayout>
   );
 }

@@ -17,7 +17,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Image, Plus, Pencil, Trash2, GripVertical, ArrowLeft } from "lucide-react";
+import { Image, Plus, Pencil, Trash2, GripVertical } from "lucide-react";
 
 interface Slide {
   id: number;
@@ -124,22 +124,16 @@ export default function AdminSlides() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <button onClick={() => window.history.back()} className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors" data-testid="button-back">
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back</span>
-        </button>
-
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-pink-500/20 flex items-center justify-center">
-              <Image className="h-6 w-6 text-pink-500" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold">Slideshow Images</h1>
-              <p className="text-muted-foreground">{slides?.length || 0} slides on homepage</p>
-            </div>
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-lg bg-pink-500/20 flex items-center justify-center">
+            <Image className="h-6 w-6 text-pink-500" />
           </div>
+          <div>
+            <h1 className="text-2xl font-bold">Slideshow Images</h1>
+            <p className="text-muted-foreground">{slides?.length || 0} slides on homepage</p>
+          </div>
+        </div>
         <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) resetForm(); }}>
           <DialogTrigger asChild>
             <Button data-testid="button-create-slide">
@@ -302,7 +296,6 @@ export default function AdminSlides() {
             </Card>
           ))
         )}
-        </div>
       </div>
     </AdminLayout>
   );

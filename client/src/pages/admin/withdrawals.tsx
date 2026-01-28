@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, X, CreditCard, ArrowLeft } from "lucide-react";
+import { Check, X, CreditCard } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -52,23 +52,17 @@ export default function AdminWithdrawals() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <button onClick={() => window.history.back()} className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors" data-testid="button-back">
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back</span>
-        </button>
-
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-lg bg-green-500/20 flex items-center justify-center">
-            <CreditCard className="h-6 w-6 text-green-500" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold">Withdraw List</h1>
-            <p className="text-muted-foreground">
-              {pendingCount} pending requests | LKR {totalApproved.toFixed(2)} total approved
-            </p>
-          </div>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-12 h-12 rounded-lg bg-green-500/20 flex items-center justify-center">
+          <CreditCard className="h-6 w-6 text-green-500" />
         </div>
+        <div>
+          <h1 className="text-2xl font-bold">Withdraw List</h1>
+          <p className="text-muted-foreground">
+            {pendingCount} pending requests | LKR {totalApproved.toFixed(2)} total approved
+          </p>
+        </div>
+      </div>
 
       <Card>
         <CardContent className="p-0">
@@ -194,7 +188,6 @@ export default function AdminWithdrawals() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      </div>
     </AdminLayout>
   );
 }

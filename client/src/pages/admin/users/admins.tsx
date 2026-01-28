@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Shield, ArrowLeft } from "lucide-react";
+import { Shield } from "lucide-react";
 
 export default function AdminAdmins() {
   const { user } = useAuth();
@@ -26,21 +26,15 @@ export default function AdminAdmins() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <button onClick={() => window.history.back()} className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors" data-testid="button-back">
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back</span>
-        </button>
-
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-lg bg-amber-500/20 flex items-center justify-center">
-            <Shield className="h-6 w-6 text-amber-500" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold">Administrators</h1>
-            <p className="text-muted-foreground">{adminUsers.length} admin accounts</p>
-          </div>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-12 h-12 rounded-lg bg-amber-500/20 flex items-center justify-center">
+          <Shield className="h-6 w-6 text-amber-500" />
         </div>
+        <div>
+          <h1 className="text-2xl font-bold">Administrators</h1>
+          <p className="text-muted-foreground">{adminUsers.length} admin accounts</p>
+        </div>
+      </div>
 
       <Card>
         <CardContent className="p-0">
@@ -100,7 +94,6 @@ export default function AdminAdmins() {
           </Table>
         </CardContent>
       </Card>
-      </div>
     </AdminLayout>
   );
 }

@@ -27,7 +27,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Megaphone, Plus, Pencil, Trash2, ExternalLink, ArrowLeft } from "lucide-react";
+import { Megaphone, Plus, Pencil, Trash2, ExternalLink } from "lucide-react";
 
 export default function AdminAds() {
   const { user } = useAuth();
@@ -117,22 +117,16 @@ export default function AdminAds() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <button onClick={() => window.history.back()} className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors" data-testid="button-back">
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back</span>
-        </button>
-
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center">
-              <Megaphone className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold">Manage Ads</h1>
-              <p className="text-muted-foreground">{ads?.length || 0} total ads</p>
-            </div>
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center">
+            <Megaphone className="h-6 w-6 text-primary" />
           </div>
+          <div>
+            <h1 className="text-2xl font-bold">Manage Ads</h1>
+            <p className="text-muted-foreground">{ads?.length || 0} total ads</p>
+          </div>
+        </div>
         <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) resetForm(); }}>
           <DialogTrigger asChild>
             <Button data-testid="button-create-ad">
@@ -305,7 +299,6 @@ export default function AdminAds() {
           </Table>
         </CardContent>
       </Card>
-      </div>
     </AdminLayout>
   );
 }
