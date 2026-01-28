@@ -67,6 +67,11 @@ export default function AdsHubPage() {
   const userData = user as any || {};
   const totalAdsCompleted = userData.totalAdsCompleted || 0;
   const TOTAL_ADS_REQUIRED = 28;
+  const milestoneAmount = parseFloat(userData.milestoneAmount || "0");
+  const hasDeposit = userData.hasDeposit || false;
+  
+  // Deposit blocking - if negative balance and no deposit, block ad clicking
+  const isDepositBlocked = milestoneAmount < 0 && !hasDeposit;
 
   const activeAds = ads.filter((ad: Ad) => ad.isActive);
   const currentAdIndex = totalAdsCompleted;
@@ -131,7 +136,36 @@ export default function AdsHubPage() {
           </CardContent>
         </Card>
 
-        {allAdsCompleted ? (
+        {isDepositBlocked ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+          >
+            <Card className="border-2 border-red-500 bg-white dark:bg-zinc-900">
+              <CardContent className="p-8 text-center">
+                <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center mx-auto mb-4">
+                  <Target className="w-8 h-8 text-red-500" />
+                </div>
+                <h2 className="text-xl font-bold text-red-500 mb-2">Deposit Required</h2>
+                <p className="text-zinc-500 dark:text-zinc-400 mb-4">
+                  You must deposit to start clicking ads.<br/>
+                  Contact admin to make your deposit.
+                </p>
+                <div className="bg-zinc-100 dark:bg-zinc-800 rounded-lg p-4 mb-4">
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400">Your Balance</p>
+                  <p className="text-2xl font-bold text-red-500">{milestoneAmount.toLocaleString()} LKR</p>
+                </div>
+                <Button
+                  onClick={() => setLocation("/contact")}
+                  className="bg-orange-500 hover:bg-orange-600"
+                  data-testid="button-contact-admin"
+                >
+                  Contact Admin
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ) : allAdsCompleted ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -146,11 +180,11 @@ export default function AdsHubPage() {
                   You have completed all available ads. Check back later for more.
                 </p>
                 <Button
-                  onClick={() => setLocation("/withdrawals")}
+                  onClick={() => setLocation("/withdraw")}
                   className="mt-4 bg-green-500 hover:bg-green-600"
                   data-testid="button-go-withdraw"
                 >
-                  Go to Withdrawals
+                  Go to Payouts
                 </Button>
               </CardContent>
             </Card>

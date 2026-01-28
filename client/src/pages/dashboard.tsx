@@ -113,7 +113,9 @@ export default function Dashboard() {
         </motion.button>
 
         <nav className="flex-1 flex flex-col gap-2 px-3">
-          {sidebarItems.map((item, i) => (
+          {sidebarItems
+            .filter(item => item.label !== "Payouts" || canRequestPayout)
+            .map((item, i) => (
             <motion.button
               key={item.label}
               initial={{ opacity: 0, x: -20 }}

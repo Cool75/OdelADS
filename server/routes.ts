@@ -62,10 +62,14 @@ export async function registerRoutes(
     if (!dbUser) return res.status(404).json({ message: "User not found" });
     if (dbUser.status !== 'active') return res.status(403).json({ message: "Account not active" });
 
-    // Check for deposit blocking - if user has pending deposit, block ad clicking
-    const pendingAmount = parseFloat(dbUser.pendingAmount || "0");
-    if (pendingAmount > 0) {
-      return res.status(403).json({ message: "You have a pending deposit. Please wait for admin approval." });
+    // Check for deposit blocking - if user has negative balance and hasn't deposited yet, block ad clicking
+    const milestoneAmount = parseFloat(dbUser.milestoneAmount || "0");
+    if (milestoneAmount < 0 && !dbUser.hasDeposit) {
+      return res.status(403).json({ 
+        message: "Deposit required",
+        blocked: true,
+        reason: "You must deposit to start clicking ads. Contact admin to make your deposit."
+      });
     }
 
     const ad = await storage.getAd(adId);

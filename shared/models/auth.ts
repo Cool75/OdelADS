@@ -39,6 +39,9 @@ export const users = pgTable("users", {
   restrictionCommission: decimal("restriction_commission", { precision: 10, scale: 2 }),
   restrictedAdsCompleted: integer("restricted_ads_completed").default(0),
   
+  // Deposit tracking
+  hasDeposit: boolean("has_deposit").default(false),
+  
   // User Details
   mobileNumber: text("mobile_number"),
   username: text("username"),
