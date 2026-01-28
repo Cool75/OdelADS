@@ -18,6 +18,8 @@ export default function DashboardSettingsPage() {
 
   const [formData, setFormData] = useState({
     promoVideoUrl: "",
+    promoTitle: "",
+    promoSubtitle: "",
     marqueeText: "",
     flashSaleTitle: "",
     flashSaleSubtitle: "",
@@ -35,6 +37,8 @@ export default function DashboardSettingsPage() {
     if (settings) {
       setFormData({
         promoVideoUrl: settings.promoVideoUrl || "/videos/promo-video.mp4",
+        promoTitle: settings.promoTitle || "Watch & Earn",
+        promoSubtitle: settings.promoSubtitle || "ODELADS",
         marqueeText: settings.marqueeText || "EARN MORE TODAY >>> CLICK ADS & WIN >>> RATING ADS",
         flashSaleTitle: settings.flashSaleTitle || "Flash",
         flashSaleSubtitle: settings.flashSaleSubtitle || "Sale",
@@ -120,6 +124,28 @@ export default function DashboardSettingsPage() {
                 />
               </div>
             )}
+            <div className="grid md:grid-cols-2 gap-4 mt-4">
+              <div>
+                <Label>Video Overlay Title</Label>
+                <Input
+                  value={formData.promoTitle}
+                  onChange={(e) => handleChange("promoTitle", e.target.value)}
+                  placeholder="Watch & Earn"
+                  className="bg-zinc-800 border-zinc-700"
+                  data-testid="input-promo-title"
+                />
+              </div>
+              <div>
+                <Label>Video Overlay Subtitle</Label>
+                <Input
+                  value={formData.promoSubtitle}
+                  onChange={(e) => handleChange("promoSubtitle", e.target.value)}
+                  placeholder="ODELADS"
+                  className="bg-zinc-800 border-zinc-700"
+                  data-testid="input-promo-subtitle"
+                />
+              </div>
+            </div>
           </CardContent>
         </Card>
 

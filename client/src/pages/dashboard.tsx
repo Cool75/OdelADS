@@ -251,39 +251,200 @@ export default function Dashboard() {
         </div>
 
         <div className="p-4 md:p-6 space-y-6">
-          {/* Welcome Card */}
-          <Card className="bg-zinc-900 border-zinc-700 border-2 rounded-2xl">
-            <CardContent className="p-6 flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-white" data-testid="text-welcome">
-                  Welcome, {firstName}
-                </h1>
-                <p className="text-zinc-400">@{username}</p>
-              </div>
-              <div className={`px-4 py-2 rounded-full flex items-center gap-2 ${
-                status === 'active' ? 'bg-blue-500' : 
-                status === 'frozen' ? 'bg-red-500' : 'bg-yellow-500'
-              }`}>
-                <CheckCircle className="w-4 h-4" />
-                <span className="font-medium capitalize" data-testid="text-status">{status}</span>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Header with Greeting and Category Pills */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <h1 className="text-3xl md:text-4xl font-bold text-white" data-testid="text-welcome">
+              Hi {firstName}!
+            </h1>
+            <div className="flex flex-wrap gap-2">
+              {["Ads Hub", "Rewards", "Events", "Promos", "Status"].map((tab, i) => (
+                <button
+                  key={tab}
+                  onClick={() => {
+                    if (tab === "Ads Hub") setLocation("/ads-hub");
+                    else if (tab === "Events") setLocation("/events");
+                    else if (tab === "Status") setLocation("/status");
+                  }}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    i === 0 
+                      ? "bg-zinc-800 text-white border border-zinc-600" 
+                      : "bg-transparent text-zinc-400 hover:text-white hover:bg-zinc-800"
+                  }`}
+                  data-testid={`tab-${tab.toLowerCase().replace(' ', '-')}`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+          </div>
 
-          {/* Promo Video */}
-          <Card className="bg-zinc-900 border-zinc-700 border-2 rounded-2xl overflow-hidden">
-            <CardContent className="p-0">
-              <video 
-                src={settings?.promoVideoUrl || "/videos/promo-video.mp4"}
-                autoPlay 
-                muted 
-                loop 
-                playsInline
-                className="w-full h-auto max-h-80 object-cover"
-                data-testid="video-promo"
-              />
-            </CardContent>
-          </Card>
+          {/* Two Column Layout - Stats + Video */}
+          <div className="grid md:grid-cols-3 gap-4">
+            {/* Left Column - Stats Cards */}
+            <div className="space-y-4">
+              {/* Balance Card */}
+              <Card className="bg-zinc-800/50 border-zinc-700 rounded-2xl">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center">
+                      <DollarSign className="w-5 h-5 text-orange-400" />
+                    </div>
+                    <span className="text-zinc-400 text-sm">Balance</span>
+                  </div>
+                  <div className="text-2xl font-bold text-white">
+                    LKR {parseFloat(userData.milestoneAmount || "0").toLocaleString()}
+                  </div>
+                  <div className="flex items-center gap-2 mt-2 text-sm">
+                    <TrendingUp className="w-4 h-4 text-green-400" />
+                    <span className="text-green-400">+{userData.milestoneReward || "0"}</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Ads Progress Card */}
+              <Card className="bg-zinc-800/50 border-zinc-700 rounded-2xl">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                      <Target className="w-5 h-5 text-blue-400" />
+                    </div>
+                    <span className="text-zinc-400 text-sm">Ads Progress</span>
+                  </div>
+                  <div className="text-2xl font-bold text-white">
+                    {totalAds}/{PAYOUT_UNLOCK_ADS}
+                  </div>
+                  <div className="w-full bg-zinc-700 rounded-full h-2 mt-3">
+                    <div 
+                      className="bg-blue-500 h-2 rounded-full transition-all"
+                      style={{ width: `${Math.min((totalAds / PAYOUT_UNLOCK_ADS) * 100, 100)}%` }}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Status Card */}
+              <Card className="bg-zinc-800/50 border-zinc-700 rounded-2xl">
+                <CardContent className="p-5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-zinc-400 text-sm block mb-1">Account Status</span>
+                      <span className={`text-lg font-bold capitalize ${
+                        status === 'active' ? 'text-green-400' : 
+                        status === 'frozen' ? 'text-red-400' : 'text-yellow-400'
+                      }`} data-testid="text-status">
+                        {status}
+                      </span>
+                    </div>
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                      status === 'active' ? 'bg-green-500/20' : 
+                      status === 'frozen' ? 'bg-red-500/20' : 'bg-yellow-500/20'
+                    }`}>
+                      <CheckCircle className={`w-6 h-6 ${
+                        status === 'active' ? 'text-green-400' : 
+                        status === 'frozen' ? 'text-red-400' : 'text-yellow-400'
+                      }`} />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Link href="/ads-hub">
+                <Button className="w-full bg-orange-500 hover:bg-orange-600 h-12 text-base font-semibold rounded-xl" data-testid="button-see-all">
+                  See all
+                  <ChevronRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
+            </div>
+
+            {/* Right Column - Main Video */}
+            <div className="md:col-span-2 relative">
+              <Card className="bg-zinc-900 border-zinc-700 rounded-2xl overflow-hidden h-full">
+                <CardContent className="p-0 relative h-full min-h-[320px]">
+                  {/* LIVE Badge */}
+                  <div className="absolute top-4 left-4 z-10">
+                    <div className="bg-red-500 px-3 py-1 rounded-full flex items-center gap-2">
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                      <span className="text-white text-sm font-bold">LIVE</span>
+                    </div>
+                  </div>
+
+                  {/* Stats Overlay - Top Right */}
+                  <div className="absolute top-4 right-4 z-10 flex gap-2">
+                    <div className="bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-full flex items-center gap-2">
+                      <DollarSign className="w-4 h-4 text-orange-400" />
+                      <span className="text-white text-sm">{userData.points || 0}</span>
+                    </div>
+                    <div className="bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-full flex items-center gap-2">
+                      <Target className="w-4 h-4 text-blue-400" />
+                      <span className="text-white text-sm">{totalAds}</span>
+                    </div>
+                    <div className="bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-full flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-yellow-400" />
+                      <span className="text-white text-sm">{userData.destinationAmount || 0}</span>
+                    </div>
+                  </div>
+
+                  {/* Video */}
+                  <video 
+                    src={settings?.promoVideoUrl || "/videos/promo-video.mp4"}
+                    autoPlay 
+                    muted 
+                    loop 
+                    playsInline
+                    className="w-full h-full min-h-[320px] object-cover"
+                    data-testid="video-promo"
+                  />
+
+                  {/* Bottom Info Overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center">
+                        <Play className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-white font-medium">{settings?.promoTitle || "Watch & Earn"}</p>
+                        <p className="text-zinc-400 text-sm">{settings?.promoSubtitle || "ODELADS"}</p>
+                      </div>
+                      <div className="text-zinc-400 text-sm">
+                        {Math.floor(Math.random() * 3) + 1}:{Math.floor(Math.random() * 60).toString().padStart(2, '0')} / 3:02
+                      </div>
+                    </div>
+                    {/* Progress Bar */}
+                    <div className="w-full bg-zinc-700 rounded-full h-1 mt-3">
+                      <div className="bg-orange-500 h-1 rounded-full" style={{ width: '45%' }} />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Featured Cards Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { title: "Daily Rewards", image: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=400", badge: "Active" },
+              { title: "Bonus Zone", image: "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=400", badge: "Hot" },
+              { title: "VIP Promos", image: "https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=400", badge: "New" },
+              { title: "Exclusive Ads", image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400", badge: "Premium" },
+            ].map((card, i) => (
+              <Card key={i} className="bg-zinc-900 border-zinc-700 rounded-2xl overflow-hidden group cursor-pointer hover:border-orange-500/50 transition-all">
+                <CardContent className="p-0 relative">
+                  <img 
+                    src={card.image} 
+                    alt={card.title}
+                    className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                  <div className="absolute bottom-3 left-3 right-3">
+                    <h4 className="text-white font-medium text-sm">{card.title}</h4>
+                  </div>
+                  <div className="absolute top-3 right-3">
+                    <span className="bg-orange-500 text-white text-xs px-2 py-1 rounded-full">{card.badge}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
 
           {/* Flash Sale Countdown */}
           <Card className="bg-zinc-900 border-orange-500/50 border-2 rounded-2xl">
