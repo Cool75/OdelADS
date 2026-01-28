@@ -64,6 +64,9 @@ const adminMenuItems: MenuItem[] = [
     children: [
       { label: "Users", href: "/admin/transactions/users", icon: Users },
       { label: "Premium Manage", href: "/admin/transactions/premium", icon: Star, badge: "NEW" },
+      { label: "Premium Plans", href: "/admin/transactions/premium-plans", icon: Star, badge: "NEW" },
+      { label: "Premium Users", href: "/admin/transactions/premium-users", icon: UserCheck, badge: "NEW" },
+      { label: "Premium History", href: "/admin/transactions/premium-history", icon: FileText, badge: "NEW" },
       { label: "Transaction Details", href: "/admin/transactions/details", icon: FileText },
       { label: "Withdraw List", href: "/admin/withdrawals", icon: CreditCard },
       { label: "Deposit Details", href: "/admin/deposits", icon: Wallet },

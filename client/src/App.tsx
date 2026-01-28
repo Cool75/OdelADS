@@ -26,6 +26,9 @@ import AdminPendingUsers from "@/pages/admin/users/pending";
 import AdminAdmins from "@/pages/admin/users/admins";
 import AdminTransactionUsers from "@/pages/admin/transactions/users";
 import AdminPremiumManage from "@/pages/admin/transactions/premium";
+import AdminPremiumPlans from "@/pages/admin/transactions/premium-plans";
+import AdminPremiumUsers from "@/pages/admin/transactions/premium-users";
+import AdminPremiumHistory from "@/pages/admin/transactions/premium-history";
 import AdminTransactionDetails from "@/pages/admin/transactions/details";
 import AdminWithdrawals from "@/pages/admin/withdrawals";
 import AdminDeposits from "@/pages/admin/deposits";
@@ -155,6 +158,15 @@ function Router() {
       </Route>
       <Route path="/admin/transactions/premium">
         {() => <ProtectedRoute component={AdminPremiumManage} adminOnly />}
+      </Route>
+      <Route path="/admin/transactions/premium-plans">
+        {() => <ProtectedRoute component={AdminPremiumPlans} adminOnly />}
+      </Route>
+      <Route path="/admin/transactions/premium-users">
+        {() => <ProtectedRoute component={AdminPremiumUsers} adminOnly />}
+      </Route>
+      <Route path="/admin/transactions/premium-history">
+        {() => <ProtectedRoute component={AdminPremiumHistory} adminOnly />}
       </Route>
       <Route path="/admin/transactions/details">
         {() => <ProtectedRoute component={AdminTransactionDetails} adminOnly />}
