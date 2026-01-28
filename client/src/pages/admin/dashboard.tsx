@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuery } from "@tanstack/react-query";
-import { Users, MousePointer, Wallet, DollarSign, Clock, ArrowRight, TrendingUp, ChevronRight } from "lucide-react";
+import { Users, MousePointer, Wallet, DollarSign, Clock, ArrowRight, TrendingUp, ChevronRight, Shield, Rocket } from "lucide-react";
 import { Link } from "wouter";
+import { useState } from "react";
+import sentinelBg from "@/assets/images/sentinel-bg.jpg";
 
 interface AdminStats {
   totalUsers: number;
@@ -21,6 +23,7 @@ interface AdminStats {
 
 export default function AdminDashboard() {
   const { user } = useAuth();
+  const [showHero, setShowHero] = useState(true);
 
   const { data: stats } = useQuery<AdminStats>({
     queryKey: ["/api/admin/stats"]
@@ -40,6 +43,72 @@ export default function AdminDashboard() {
 
   const pendingWithdrawalsList = withdrawals?.filter(w => w.status === "pending") || [];
   const recentUsers = users?.slice(0, 5) || [];
+
+  if (showHero) {
+    return (
+      <div className="relative h-screen w-full overflow-hidden bg-black flex flex-col items-center justify-center text-white font-sans selection:bg-primary/30">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={sentinelBg} 
+            alt="Sentinel Defense Background" 
+            className="w-full h-full object-cover opacity-50 scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+        </div>
+
+        <nav className="absolute top-0 w-full p-8 flex items-center justify-between z-10 max-w-7xl mx-auto">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded bg-primary flex items-center justify-center p-1">
+              <svg fill="white" viewBox="0 0 147 70" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+                <path d="M56 50.2031V14H70V60.1562C70 65.5928 65.5928 70 60.1562 70C57.5605 70 54.9982 68.9992 53.1562 67.1573L0 14H19.7969L56 50.2031Z" />
+                <path d="M147 56H133V23.9531L100.953 56H133V70H96.6875C85.8144 70 77 61.1856 77 50.3125V14H91V46.1562L123.156 14H91V0H127.312C138.186 0 147 8.81439 147 19.6875V56Z" />
+              </svg>
+            </div>
+            <span className="text-xl font-bold tracking-tight">Skydda</span>
+          </div>
+          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white/70">
+            <button className="hover:text-white transition-colors">About</button>
+            <button className="hover:text-white transition-colors">Features</button>
+            <button className="hover:text-white transition-colors">Testimonials</button>
+            <button className="hover:text-white transition-colors">Pricing</button>
+            <button className="hover:text-white transition-colors">FAQ</button>
+          </div>
+          <button 
+            className="text-sm font-bold tracking-tight hover:text-primary transition-colors"
+            onClick={() => setShowHero(false)}
+          >
+            Get Started
+          </button>
+        </nav>
+
+        <div className="relative z-10 max-w-4xl text-center px-4 space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+          <h1 className="text-6xl md:text-8xl font-bold tracking-tighter leading-[0.9] text-white">
+            AI Defense That Sees<br />Through the Dark
+          </h1>
+          <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed font-medium">
+            Our autonomous AI sentinel detects and neutralizes<br className="hidden md:block" />
+            zero-day threats <span className="text-white">before they reach your gateway.</span>
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
+            <Button 
+              size="lg" 
+              className="h-14 px-10 text-base font-bold bg-white text-black hover:bg-white/90 rounded-none w-full sm:w-auto transition-transform active:scale-95"
+              onClick={() => setShowHero(false)}
+            >
+              Deploy the Sentinel
+            </Button>
+            <Button 
+              size="lg" 
+              variant="outline"
+              className="h-14 px-10 text-base font-bold border-white/20 text-white hover:bg-white/10 rounded-none w-full sm:w-auto backdrop-blur-md transition-transform active:scale-95"
+            >
+              Read the Whitepaper
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <AdminLayout>
