@@ -11,6 +11,7 @@ import LandingPage from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import WithdrawPage from "@/pages/withdraw";
 import ExclusivesPage from "@/pages/exclusives";
+import StatusPage from "@/pages/status";
 import NotFound from "@/pages/not-found";
 
 import AdminDashboard from "@/pages/admin/dashboard";
@@ -85,6 +86,12 @@ function Router() {
       </Route>
       <Route path="/exclusives">
         {() => <ProtectedRoute component={ExclusivesPage} />}
+      </Route>
+      <Route path="/status">
+        {() => <ProtectedRoute component={StatusPage} />}
+      </Route>
+      <Route path="/withdrawals">
+        {() => <ProtectedRoute component={WithdrawPage} />}
       </Route>
 
       <Route path="/admin">
