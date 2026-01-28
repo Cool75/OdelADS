@@ -148,15 +148,15 @@ export default function Dashboard() {
           <motion.div 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-between mb-8"
+            className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-8"
           >
-            <div>
+            <div className="shrink-0">
               <h1 className="text-3xl font-bold mb-1">Hi {firstName}!</h1>
               <p className="text-zinc-400">Welcome back to your earnings dashboard</p>
             </div>
             
             {/* Category Tabs */}
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap justify-end flex-1">
               {adCategories.map((cat, i) => (
                 <motion.button
                   key={cat.label}
