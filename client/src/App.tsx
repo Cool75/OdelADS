@@ -9,6 +9,7 @@ import { useEffect } from "react";
 
 import SplashPage from "@/pages/splash";
 import LandingPage from "@/pages/landing";
+import AuthPage from "@/pages/auth";
 import Dashboard from "@/pages/dashboard";
 import WithdrawPage from "@/pages/withdraw";
 import ExclusivesPage from "@/pages/exclusives";
@@ -102,6 +103,12 @@ function Router() {
     <Switch>
       <Route path="/" component={HomePage} />
       <Route path="/welcome" component={WelcomePage} />
+      <Route path="/auth/login">
+        {() => <AuthPage defaultMode="login" />}
+      </Route>
+      <Route path="/auth/register">
+        {() => <AuthPage defaultMode="register" />}
+      </Route>
       
       <Route path="/dashboard">
         {() => <ProtectedRoute component={Dashboard} />}

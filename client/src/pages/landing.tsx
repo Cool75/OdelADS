@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { ChevronLeft, ChevronRight, Facebook, Twitter, Instagram, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 
 const slides = [
   {
@@ -49,9 +50,14 @@ const products = [
 export default function LandingPage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [brandOffset, setBrandOffset] = useState(0);
+  const [, setLocation] = useLocation();
 
-  const handleLogin = () => {
-    window.location.href = "/api/login";
+  const handleSignIn = () => {
+    setLocation("/auth/login");
+  };
+
+  const handleGetStarted = () => {
+    setLocation("/auth/register");
   };
 
   useEffect(() => {
@@ -79,14 +85,14 @@ export default function LandingPage() {
             </div>
             <div className="flex items-center gap-3">
               <button 
-                onClick={handleLogin} 
+                onClick={handleSignIn} 
                 className="px-3 py-1.5 text-sm text-zinc-400 hover:text-white transition-colors"
                 data-testid="button-sign-in"
               >
                 Sign In
               </button>
               <Button 
-                onClick={handleLogin} 
+                onClick={handleGetStarted} 
                 size="sm"
                 className="rounded-full bg-white text-black hover:bg-zinc-200 font-medium px-4 h-8 text-sm"
                 data-testid="button-get-started"
