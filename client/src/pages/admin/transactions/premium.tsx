@@ -39,6 +39,8 @@ export default function AdminPremiumManage() {
   const [inputValue2, setInputValue2] = useState("");
   const [inputValue3, setInputValue3] = useState("");
   const [inputValue4, setInputValue4] = useState("");
+  const [inputValue5, setInputValue5] = useState("");
+  const [inputValue6, setInputValue6] = useState("");
 
   const depositMutation = useMutation({
     mutationFn: async ({ userId, amount }: { userId: string, amount: string }) => {
@@ -135,6 +137,8 @@ export default function AdminPremiumManage() {
     setInputValue2("");
     setInputValue3("");
     setInputValue4("");
+    setInputValue5("");
+    setInputValue6("");
   };
 
   if (!(user as any)?.isAdmin) {
@@ -422,34 +426,93 @@ export default function AdminPremiumManage() {
         </DialogContent>
       </Dialog>
 
-      {/* Set Balance Dialog */}
+      {/* Set All Fields Dialog */}
       <Dialog open={dialogType === "set"} onOpenChange={(open) => !open && closeDialog()}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Set Balance for {selectedUser?.firstName}</DialogTitle>
+            <DialogTitle>Set All Fields - {selectedUser?.firstName}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
             <div>
-              <Label>Current Balance: LKR {parseFloat(selectedUser?.milestoneAmount || "0").toFixed(2)}</Label>
-            </div>
-            <div>
-              <Label>New Balance (LKR)</Label>
+              <Label>Milestone Amount (LKR)</Label>
               <Input
                 type="number"
-                placeholder="Enter new balance"
+                placeholder={selectedUser?.milestoneAmount || "0"}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                data-testid="input-set-balance"
+                data-testid="input-set-milestone"
               />
-              <p className="text-xs text-muted-foreground mt-1">Use negative values to set negative balance</p>
+              <p className="text-xs text-muted-foreground">Main balance (can be negative)</p>
+            </div>
+            <div>
+              <Label>Ongoing Milestone (LKR)</Label>
+              <Input
+                type="number"
+                placeholder={selectedUser?.ongoingMilestone || "0"}
+                value={inputValue2}
+                onChange={(e) => setInputValue2(e.target.value)}
+                data-testid="input-set-ongoing"
+              />
+              <p className="text-xs text-muted-foreground">Locked/pending amount</p>
+            </div>
+            <div>
+              <Label>Milestone Reward (LKR)</Label>
+              <Input
+                type="number"
+                placeholder={selectedUser?.milestoneReward || "0"}
+                value={inputValue3}
+                onChange={(e) => setInputValue3(e.target.value)}
+                data-testid="input-set-reward"
+              />
+              <p className="text-xs text-muted-foreground">Commission per ad</p>
+            </div>
+            <div>
+              <Label>Destination Amount (LKR)</Label>
+              <Input
+                type="number"
+                placeholder={selectedUser?.destinationAmount || "0"}
+                value={inputValue4}
+                onChange={(e) => setInputValue4(e.target.value)}
+                data-testid="input-set-destination"
+              />
+              <p className="text-xs text-muted-foreground">Target goal</p>
+            </div>
+            <div>
+              <Label>Total Ads Completed</Label>
+              <Input
+                type="number"
+                placeholder={String(selectedUser?.totalAdsCompleted || 0)}
+                value={inputValue5 || ""}
+                onChange={(e) => setInputValue5(e.target.value)}
+                data-testid="input-set-ads"
+              />
+            </div>
+            <div>
+              <Label>Points</Label>
+              <Input
+                type="number"
+                placeholder={String(selectedUser?.points || 0)}
+                value={inputValue6 || ""}
+                onChange={(e) => setInputValue6(e.target.value)}
+                data-testid="input-set-points"
+              />
             </div>
             <Button
               className="w-full bg-orange-500 hover:bg-orange-600"
-              onClick={() => setBalanceMutation.mutate({ userId: selectedUser?.id, amount: inputValue })}
-              disabled={!inputValue || setBalanceMutation.isPending}
-              data-testid="button-confirm-set"
+              onClick={() => {
+                const updates: any = {};
+                if (inputValue) updates.milestoneAmount = inputValue;
+                if (inputValue2) updates.ongoingMilestone = inputValue2;
+                if (inputValue3) updates.milestoneReward = inputValue3;
+                if (inputValue4) updates.destinationAmount = inputValue4;
+                if (inputValue5) updates.totalAdsCompleted = parseInt(inputValue5);
+                if (inputValue6) updates.points = parseInt(inputValue6);
+                updateUserMutation.mutate({ userId: selectedUser?.id, data: updates });
+              }}
+              disabled={updateUserMutation.isPending}
+              data-testid="button-confirm-set-all"
             >
-              Set Balance
+              Save All Changes
             </Button>
           </div>
         </DialogContent>
