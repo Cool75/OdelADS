@@ -257,11 +257,12 @@ export default function Dashboard() {
               Hi {firstName}!
             </h1>
             <div className="flex flex-wrap gap-2">
-              {["Ads Hub", "Rewards", "Events", "Promos", "Status"].map((tab, i) => (
+              {["Exclusives", "Ads Hub", "Rewards", "Events", "Promos", "Status"].map((tab, i) => (
                 <button
                   key={tab}
                   onClick={() => {
-                    if (tab === "Ads Hub") setLocation("/ads-hub");
+                    if (tab === "Exclusives") setLocation("/exclusives");
+                    else if (tab === "Ads Hub") setLocation("/ads-hub");
                     else if (tab === "Events") setLocation("/events");
                     else if (tab === "Status") setLocation("/status");
                   }}
