@@ -223,94 +223,101 @@ export default function Dashboard() {
             </div>
           </motion.div>
 
+          {/* Balance Cards Grid - 6 Cards */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6"
+          >
+            {/* Milestone Amount (Main Balance) */}
+            <Card className={`border-2 ${parseFloat(balance) < 0 ? 'border-red-500/50 bg-red-950/20' : 'border-orange-500/30 bg-zinc-900/50'}`}>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Wallet className="w-5 h-5 text-orange-500" />
+                  <span className="text-xs text-zinc-400">Milestone Amount</span>
+                </div>
+                <p className={`text-2xl font-bold ${parseFloat(balance) < 0 ? 'text-red-500' : 'text-white'}`} data-testid="text-milestone-amount">
+                  {parseFloat(balance) < 0 ? '-' : ''}LKR {Math.abs(parseFloat(balance)).toLocaleString()}
+                </p>
+                <p className="text-xs text-zinc-500 mt-1">{parseFloat(balance) < 0 ? 'Negative Balance' : 'Main Balance'}</p>
+              </CardContent>
+            </Card>
+
+            {/* Ongoing Milestone (Locked) */}
+            <Card className="border-purple-500/30 bg-zinc-900/50 border-2">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Clock className="w-5 h-5 text-purple-500" />
+                  <span className="text-xs text-zinc-400">Ongoing Milestone</span>
+                </div>
+                <p className="text-2xl font-bold text-white" data-testid="text-ongoing-milestone">
+                  LKR {parseFloat(ongoingMilestone).toLocaleString()}
+                </p>
+                <p className="text-xs text-zinc-500 mt-1">Pending/Locked</p>
+              </CardContent>
+            </Card>
+
+            {/* Milestone Reward (Per Ad) */}
+            <Card className="border-cyan-500/30 bg-zinc-900/50 border-2">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Zap className="w-5 h-5 text-cyan-500" />
+                  <span className="text-xs text-zinc-400">Milestone Reward</span>
+                </div>
+                <p className="text-2xl font-bold text-white" data-testid="text-milestone-reward">
+                  LKR {parseFloat(dailyReward).toLocaleString()}
+                </p>
+                <p className="text-xs text-zinc-500 mt-1">Commission Per Ad</p>
+              </CardContent>
+            </Card>
+
+            {/* Destination Amount (Target) */}
+            <Card className="border-green-500/30 bg-zinc-900/50 border-2">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Target className="w-5 h-5 text-green-500" />
+                  <span className="text-xs text-zinc-400">Destination Amount</span>
+                </div>
+                <p className="text-2xl font-bold text-white" data-testid="text-destination-amount">
+                  LKR {parseFloat(destinationAmount).toLocaleString()}
+                </p>
+                <p className="text-xs text-zinc-500 mt-1">Target Goal</p>
+              </CardContent>
+            </Card>
+
+            {/* Ads Completed */}
+            <Card className="border-blue-500/30 bg-zinc-900/50 border-2">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Eye className="w-5 h-5 text-blue-500" />
+                  <span className="text-xs text-zinc-400">Ads Completed</span>
+                </div>
+                <p className="text-2xl font-bold text-white" data-testid="text-ads-completed">
+                  {totalAds}/{PAYOUT_UNLOCK_ADS}
+                </p>
+                <p className="text-xs text-zinc-500 mt-1">For Payout Unlock</p>
+              </CardContent>
+            </Card>
+
+            {/* Points */}
+            <Card className="border-yellow-500/30 bg-zinc-900/50 border-2">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Star className="w-5 h-5 text-yellow-500" />
+                  <span className="text-xs text-zinc-400">Points</span>
+                </div>
+                <p className="text-2xl font-bold text-white" data-testid="text-points">
+                  {points} pts
+                </p>
+                <p className="text-xs text-zinc-500 mt-1">Reward Points</p>
+              </CardContent>
+            </Card>
+          </motion.div>
+
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Left Column - Stats */}
             <div className="space-y-6">
-              {/* Balance Card */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                <Card className="bg-gradient-to-br from-zinc-800/80 to-zinc-900/80 border-zinc-700/50 backdrop-blur-xl overflow-hidden">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
-                          <Wallet className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <p className="text-zinc-400 text-sm">Total Balance</p>
-                          <h3 className="text-2xl font-bold text-white">LKR {balance}</h3>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-3 mt-6">
-                      <motion.div 
-                        whileHover={{ scale: 1.02 }}
-                        className="bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 rounded-xl p-4 border border-cyan-500/20"
-                      >
-                        <div className="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center mb-2">
-                          <Zap className="w-4 h-4 text-cyan-400" />
-                        </div>
-                        <p className="text-xl font-bold text-white">LKR {dailyReward}</p>
-                        <p className="text-xs text-zinc-400">TODAY</p>
-                      </motion.div>
-                      <motion.div 
-                        whileHover={{ scale: 1.02 }}
-                        className="bg-gradient-to-br from-purple-500/20 to-purple-600/10 rounded-xl p-4 border border-purple-500/20"
-                      >
-                        <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center mb-2">
-                          <TrendingUp className="w-4 h-4 text-purple-400" />
-                        </div>
-                        <p className="text-xl font-bold text-white">{totalAds}</p>
-                        <p className="text-xs text-zinc-400">ADS WATCHED</p>
-                      </motion.div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              {/* Quick Stats */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                <Card className="bg-zinc-900/50 border-zinc-800/50 backdrop-blur-xl">
-                  <CardContent className="p-6">
-                    <h3 className="font-bold text-white mb-4">Earnings Summary</h3>
-                    <p className="text-sm text-zinc-400 mb-4">Track your earnings progress</p>
-                    
-                    <div className="space-y-3">
-                      {[
-                        { icon: Eye, label: "Ads Viewed", value: `${totalAds}`, color: "text-blue-400" },
-                        { icon: Clock, label: "Ongoing Milestone", value: `LKR ${ongoingMilestone}`, color: "text-purple-400" },
-                        { icon: DollarSign, label: "Pending", value: `LKR ${pendingAmount}`, color: "text-amber-400" },
-                        { icon: Star, label: "Points", value: `${points}`, color: "text-yellow-400" },
-                      ].map((item, i) => (
-                        <motion.div
-                          key={item.label}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.4 + (i * 0.1) }}
-                          whileHover={{ x: 5, backgroundColor: "rgba(255,255,255,0.02)" }}
-                          className="flex items-center justify-between p-3 rounded-xl transition-all cursor-pointer"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className={`w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center ${item.color}`}>
-                              <item.icon className="w-4 h-4" />
-                            </div>
-                            <span className="text-zinc-300 text-sm">{item.label}</span>
-                          </div>
-                          <span className="text-white font-medium text-sm">{item.value}</span>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
 
               {/* Payout Progress */}
               <motion.div

@@ -352,6 +352,23 @@ export async function registerRoutes(
     res.json(updated);
   });
 
+  // Delete user
+  app.delete("/api/users/:id", isAuthenticated, async (req, res) => {
+    const user = req.user as any;
+    const dbUser = await storage.getUser(user.claims.sub);
+    if (!dbUser?.isAdmin) return res.status(403).json({ message: "Admin only" });
+
+    const targetId = req.params.id;
+    
+    // Prevent self-deletion
+    if (targetId === user.claims.sub) {
+      return res.status(400).json({ message: "Cannot delete your own account" });
+    }
+
+    await storage.deleteUser(targetId);
+    res.json({ success: true, message: "User deleted" });
+  });
+
   // === CMS: SITE SETTINGS ===
   app.get("/api/settings", async (req, res) => {
     const settings = await storage.getSiteSettings();

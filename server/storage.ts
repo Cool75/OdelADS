@@ -1,7 +1,7 @@
 import { db } from "./db";
 import { 
   users, ads, withdrawals, deposits, siteSettings, slides, contactInfo, infoPages, commissions, adClicks,
-  type User, type InsertUser, type Ad, type InsertAd, 
+  type User, type UpsertUser, type Ad, type InsertAd, 
   type Withdrawal, type InsertWithdrawal, type Deposit, type InsertDeposit,
   type SiteSetting, type InsertSiteSetting, type Slide, type InsertSlide,
   type ContactInfo, type InsertContactInfo, type InfoPage, type InsertInfoPage,
@@ -15,6 +15,7 @@ export interface IStorage extends IAuthStorage {
   getUser(id: string): Promise<User | undefined>;
   getUsers(): Promise<User[]>;
   updateUser(id: string, updates: Partial<User>): Promise<User>;
+  deleteUser(id: string): Promise<void>;
   
   // Balance Ops
   addMilestoneReward(userId: string, amount: number): Promise<void>;
@@ -95,7 +96,7 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async upsertUser(userData: InsertUser): Promise<User> {
+  async upsertUser(userData: UpsertUser): Promise<User> {
     const [user] = await db
       .insert(users)
       .values(userData)
@@ -122,6 +123,15 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, id))
       .returning();
     return updated;
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    // Delete related records first
+    await db.delete(withdrawals).where(eq(withdrawals.userId, id));
+    await db.delete(deposits).where(eq(deposits.userId, id));
+    await db.delete(adClicks).where(eq(adClicks.userId, id));
+    // Delete user
+    await db.delete(users).where(eq(users.id, id));
   }
 
   async addMilestoneReward(userId: string, amount: number): Promise<void> {

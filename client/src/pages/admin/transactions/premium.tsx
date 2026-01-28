@@ -106,6 +106,28 @@ export default function AdminPremiumManage() {
     }
   });
 
+  const freezeMutation = useMutation({
+    mutationFn: async ({ userId, freeze }: { userId: string, freeze: boolean }) => {
+      return apiRequest("PATCH", `/api/users/${userId}/status`, { status: freeze ? "frozen" : "active" });
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      toast({ title: variables.freeze ? "User frozen" : "User unfrozen" });
+      closeDialog();
+    }
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      return apiRequest("DELETE", `/api/users/${userId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      toast({ title: "User deleted successfully" });
+      closeDialog();
+    }
+  });
+
   const closeDialog = () => {
     setSelectedUser(null);
     setDialogType("");
@@ -267,6 +289,22 @@ export default function AdminPremiumManage() {
                           data-testid={`button-edit-bank-${u.id}`}
                         >
                           EDIT
+                        </Button>
+                        <Button
+                          size="sm"
+                          className={`h-7 px-2 text-xs ${u.status === 'frozen' ? 'bg-green-600 hover:bg-green-700' : 'bg-amber-600 hover:bg-amber-700'} text-white`}
+                          onClick={() => openDialog(u, u.status === 'frozen' ? "unfreeze" : "freeze")}
+                          data-testid={`button-freeze-${u.id}`}
+                        >
+                          {u.status === 'frozen' ? 'UNFREEZE' : 'FREEZE'}
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="bg-red-600 hover:bg-red-700 text-white h-7 px-2 text-xs"
+                          onClick={() => openDialog(u, "delete")}
+                          data-testid={`button-delete-${u.id}`}
+                        >
+                          DELETE
                         </Button>
                       </div>
                     </td>
@@ -644,6 +682,116 @@ export default function AdminPremiumManage() {
               <Pencil className="mr-2 h-4 w-4" />
               Save Bank Details
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Freeze Dialog */}
+      <Dialog open={dialogType === "freeze"} onOpenChange={(open) => !open && closeDialog()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Freeze User Account</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-muted-foreground">
+              Are you sure you want to freeze <strong>{selectedUser?.firstName} {selectedUser?.lastName}</strong>'s account?
+            </p>
+            <p className="text-sm text-amber-500">
+              The user will not be able to login until unfrozen.
+            </p>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={closeDialog}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="flex-1 bg-amber-600 hover:bg-amber-700"
+                onClick={() => freezeMutation.mutate({ userId: selectedUser?.id, freeze: true })}
+                disabled={freezeMutation.isPending}
+                data-testid="button-confirm-freeze"
+              >
+                Freeze Account
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Unfreeze Dialog */}
+      <Dialog open={dialogType === "unfreeze"} onOpenChange={(open) => !open && closeDialog()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Unfreeze User Account</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-muted-foreground">
+              Are you sure you want to unfreeze <strong>{selectedUser?.firstName} {selectedUser?.lastName}</strong>'s account?
+            </p>
+            <p className="text-sm text-green-500">
+              The user will be able to login and use the platform again.
+            </p>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={closeDialog}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="flex-1 bg-green-600 hover:bg-green-700"
+                onClick={() => freezeMutation.mutate({ userId: selectedUser?.id, freeze: false })}
+                disabled={freezeMutation.isPending}
+                data-testid="button-confirm-unfreeze"
+              >
+                Unfreeze Account
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete User Dialog */}
+      <Dialog open={dialogType === "delete"} onOpenChange={(open) => !open && closeDialog()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete User Account</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-muted-foreground">
+              Are you sure you want to permanently delete <strong>{selectedUser?.firstName} {selectedUser?.lastName}</strong>'s account?
+            </p>
+            <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+              <p className="text-sm text-red-500 font-medium">
+                This action cannot be undone!
+              </p>
+              <ul className="text-sm text-red-400 mt-2 list-disc list-inside">
+                <li>All user data will be deleted</li>
+                <li>Transaction history will be deleted</li>
+                <li>Payout history will be deleted</li>
+              </ul>
+            </div>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={closeDialog}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                className="flex-1"
+                onClick={() => deleteUserMutation.mutate(selectedUser?.id)}
+                disabled={deleteUserMutation.isPending}
+                data-testid="button-confirm-delete"
+              >
+                Delete Permanently
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
