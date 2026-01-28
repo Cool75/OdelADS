@@ -1,184 +1,304 @@
-import { LayoutShell } from "@/components/layout-shell";
+import { AdminLayout } from "@/components/admin-layout";
 import { useAuth } from "@/hooks/use-auth";
-import { useAds, useCreateAd, useDeleteAd } from "@/hooks/use-ads";
+import { useAds } from "@/hooks/use-ads";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Trash2, Plus } from "lucide-react";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { insertAdSchema } from "@shared/schema";
-import { z } from "zod";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { Megaphone, Plus, Pencil, Trash2, ExternalLink } from "lucide-react";
 
 export default function AdminAds() {
   const { user } = useAuth();
-  const { data: ads } = useAds();
-  const { mutate: createAd } = useCreateAd();
-  const { mutate: deleteAd } = useDeleteAd();
+  const { data: ads, isLoading } = useAds();
+  const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
-
-  // Schema with coercion for decimal price
-  const formSchema = insertAdSchema.extend({
-    price: z.coerce.number(),
+  const [editingAd, setEditingAd] = useState<any>(null);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    imageUrl: "",
+    targetUrl: "",
+    price: "",
+    isActive: true
   });
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
+  const resetForm = () => {
+    setFormData({
       title: "",
       description: "",
       imageUrl: "",
       targetUrl: "",
-      price: 0,
-    },
-  });
-
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    createAd(data);
-    setIsOpen(false);
-    form.reset();
+      price: "",
+      isActive: true
+    });
+    setEditingAd(null);
   };
 
-  if (!(user as any)?.isAdmin) return null;
+  const createMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("POST", "/api/ads", formData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/ads"] });
+      toast({ title: "Ad created successfully" });
+      setIsOpen(false);
+      resetForm();
+    }
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("PUT", `/api/ads/${editingAd.id}`, formData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/ads"] });
+      toast({ title: "Ad updated successfully" });
+      setIsOpen(false);
+      resetForm();
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return apiRequest("DELETE", `/api/ads/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/ads"] });
+      toast({ title: "Ad deleted successfully" });
+    }
+  });
+
+  const handleEdit = (ad: any) => {
+    setEditingAd(ad);
+    setFormData({
+      title: ad.title,
+      description: ad.description,
+      imageUrl: ad.imageUrl,
+      targetUrl: ad.targetUrl,
+      price: ad.price,
+      isActive: ad.isActive
+    });
+    setIsOpen(true);
+  };
+
+  const handleSubmit = () => {
+    if (editingAd) {
+      updateMutation.mutate();
+    } else {
+      createMutation.mutate();
+    }
+  };
+
+  if (!(user as any)?.isAdmin) {
+    return <div className="p-8 text-center text-red-500">Access Denied</div>;
+  }
 
   return (
-    <LayoutShell>
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-display font-bold">Manage Ads</h1>
-          <p className="text-muted-foreground">Create and remove advertisements</p>
+    <AdminLayout>
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center">
+            <Megaphone className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">Manage Ads</h1>
+            <p className="text-muted-foreground">{ads?.length || 0} total ads</p>
+          </div>
         </div>
-        
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) resetForm(); }}>
           <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" /> Create Ad
+            <Button data-testid="button-create-ad">
+              <Plus className="mr-2 h-4 w-4" />
+              Create Ad
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle>Create New Advertisement</DialogTitle>
+              <DialogTitle>{editingAd ? "Edit Ad" : "Create New Ad"}</DialogTitle>
             </DialogHeader>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ad title" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+            <div className="space-y-4 mt-4">
+              <div>
+                <Label>Title</Label>
+                <Input
+                  value={formData.title}
+                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  placeholder="Ad title"
+                  data-testid="input-ad-title"
                 />
-                
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="Details..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+              </div>
+              <div>
+                <Label>Description</Label>
+                <Textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  placeholder="Short description"
+                  data-testid="input-ad-description"
                 />
-
-                <FormField
-                  control={form.control}
-                  name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Image URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+              </div>
+              <div>
+                <Label>Image URL</Label>
+                <Input
+                  value={formData.imageUrl}
+                  onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
+                  placeholder="https://example.com/image.jpg"
+                  data-testid="input-ad-image"
                 />
-
-                <FormField
-                  control={form.control}
-                  name="targetUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Target URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+              </div>
+              <div>
+                <Label>Target URL</Label>
+                <Input
+                  value={formData.targetUrl}
+                  onChange={(e) => setFormData({...formData, targetUrl: e.target.value})}
+                  placeholder="https://example.com"
+                  data-testid="input-ad-target"
                 />
-
-                <FormField
-                  control={form.control}
-                  name="price"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Cost per Click (LKR)</FormLabel>
-                      <FormControl>
-                        <Input type="number" step="0.01" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+              </div>
+              <div>
+                <Label>Price per Click (LKR)</Label>
+                <Input
+                  type="number"
+                  value={formData.price}
+                  onChange={(e) => setFormData({...formData, price: e.target.value})}
+                  placeholder="0.50"
+                  data-testid="input-ad-price"
                 />
-                
-                <Button type="submit" className="w-full">Create Ad</Button>
-              </form>
-            </Form>
+              </div>
+              <div className="flex items-center justify-between">
+                <Label>Active</Label>
+                <Switch
+                  checked={formData.isActive}
+                  onCheckedChange={(checked) => setFormData({...formData, isActive: checked})}
+                  data-testid="switch-ad-active"
+                />
+              </div>
+              <Button
+                className="w-full"
+                onClick={handleSubmit}
+                disabled={createMutation.isPending || updateMutation.isPending}
+                data-testid="button-submit-ad"
+              >
+                {editingAd ? "Update Ad" : "Create Ad"}
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {ads?.map((ad) => (
-          <Card key={ad.id} className="overflow-hidden">
-            <div className="aspect-video bg-muted relative">
-              <img src={ad.imageUrl} alt={ad.title} className="w-full h-full object-cover" />
-              <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs font-bold">
-                {Number(ad.price).toFixed(2)} LKR
-              </div>
-            </div>
-            <CardContent className="p-4">
-              <h3 className="font-bold text-lg mb-1">{ad.title}</h3>
-              <p className="text-sm text-muted-foreground line-clamp-2">{ad.description}</p>
-            </CardContent>
-            <CardFooter className="p-4 pt-0 flex justify-between">
-               <span className="text-xs text-muted-foreground truncate max-w-[150px]">{ad.targetUrl}</span>
-               <Button variant="destructive" size="sm" onClick={() => deleteAd(ad.id)}>
-                 <Trash2 className="h-4 w-4" />
-               </Button>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
-    </LayoutShell>
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Ad</TableHead>
+                <TableHead>Price</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Created</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-8">Loading...</TableCell>
+                </TableRow>
+              ) : !ads?.length ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                    No ads yet. Create your first ad!
+                  </TableCell>
+                </TableRow>
+              ) : (
+                ads.map((ad) => (
+                  <TableRow key={ad.id} data-testid={`row-ad-${ad.id}`}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={ad.imageUrl}
+                          alt={ad.title}
+                          className="w-16 h-12 object-cover rounded"
+                        />
+                        <div>
+                          <p className="font-medium">{ad.title}</p>
+                          <p className="text-xs text-muted-foreground line-clamp-1">
+                            {ad.description}
+                          </p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className="bg-primary/20 text-primary">
+                        LKR {parseFloat(ad.price).toFixed(2)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={ad.isActive ? "default" : "secondary"}
+                        className={ad.isActive ? "bg-green-500/20 text-green-500" : ""}
+                      >
+                        {ad.isActive ? "Active" : "Inactive"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {ad.createdAt ? new Date(ad.createdAt).toLocaleDateString() : "-"}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => window.open(ad.targetUrl, "_blank")}
+                          data-testid={`button-view-ad-${ad.id}`}
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => handleEdit(ad)}
+                          data-testid={`button-edit-ad-${ad.id}`}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="text-destructive"
+                          onClick={() => deleteMutation.mutate(ad.id)}
+                          data-testid={`button-delete-ad-${ad.id}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </AdminLayout>
   );
 }
