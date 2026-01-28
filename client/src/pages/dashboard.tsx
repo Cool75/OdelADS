@@ -14,10 +14,13 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 
 const sidebarItems = [
-  { icon: LayoutGrid, label: "Dashboard", path: "/dashboard" },
-  { icon: Play, label: "Watch Ads", path: "/dashboard" },
-  { icon: Wallet, label: "Withdrawals", path: "/withdrawals" },
-  { icon: CreditCard, label: "Transactions", path: "/transactions" },
+  { icon: LayoutGrid, label: "Dashboard", path: "/" },
+  { icon: Gem, label: "Exclusives", path: "/exclusives" },
+  { icon: Target, label: "Ad's Hub", path: "/ads-hub" },
+  { icon: Wallet, label: "Payouts", path: "/withdrawals" },
+  { icon: Crown, label: "Status", path: "/status" },
+  { icon: PartyPopper, label: "Events", path: "/events" },
+  { icon: Phone, label: "Contact", path: "/contact" },
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
 
@@ -37,6 +40,7 @@ export default function Dashboard() {
   const { data: ads, isLoading: isAdsLoading } = useAds();
   const { mutate: clickAd, isPending: isClicking } = useClickAd();
   const [activeCategory, setActiveCategory] = useState("");
+  const [activeSidebar, setActiveSidebar] = useState("/");
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const [, setLocation] = useLocation();
 
@@ -112,13 +116,16 @@ export default function Dashboard() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 * i }}
-              whileHover={{ scale: 1.1, backgroundColor: "rgba(255,255,255,0.1)" }}
+              whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => setLocation(item.path)}
+              onClick={() => {
+                setActiveSidebar(item.path);
+                setLocation(item.path);
+              }}
               className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
-                item.path === "/dashboard" 
+                activeSidebar === item.path 
                   ? "bg-orange-500 text-white" 
-                  : "text-zinc-400 hover:text-white"
+                  : "text-zinc-400 hover:text-white hover:bg-zinc-800"
               }`}
               data-testid={`nav-${item.label.toLowerCase().replace(' ', '-')}`}
             >
