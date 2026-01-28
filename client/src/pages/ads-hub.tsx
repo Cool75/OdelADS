@@ -1,9 +1,9 @@
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Eye, Target, CheckCircle, Check } from "lucide-react";
+import { ArrowLeft, Eye, Target, CheckCircle, Check, ShoppingCart, X } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import type { Ad } from "@shared/schema";
 
-type AdState = "ready" | "viewing" | "confirm" | "completing";
+type AdState = "ready" | "viewing" | "added" | "confirm" | "completing";
 
 export default function AdsHubPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -47,7 +47,7 @@ export default function AdsHubPage() {
   });
 
   useEffect(() => {
-    if (adState === "viewing") {
+    if (adState === "added") {
       const timer = setTimeout(() => {
         setAdState("confirm");
       }, 3000);
@@ -75,12 +75,15 @@ export default function AdsHubPage() {
 
   const handleViewAd = () => {
     if (!currentAd || adState !== "ready") return;
-    
-    if (currentAd.targetUrl) {
-      window.open(currentAd.targetUrl, "_blank");
-    }
-    
     setAdState("viewing");
+  };
+
+  const handleAddToCart = () => {
+    setAdState("added");
+  };
+
+  const handleCloseViewing = () => {
+    setAdState("ready");
   };
 
   const handleConfirm = () => {
@@ -121,7 +124,7 @@ export default function AdsHubPage() {
                 <p className="text-xs">Ads Completed</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold">{TOTAL_ADS_REQUIRED - totalAdsCompleted}</p>
+                <p className="text-2xl font-bold">{Math.max(0, TOTAL_ADS_REQUIRED - totalAdsCompleted)}</p>
                 <p className="text-xs">Remaining</p>
               </div>
             </div>
@@ -172,27 +175,6 @@ export default function AdsHubPage() {
                   </div>
                 </div>
 
-                {currentAd.imageUrl && (
-                  <div className="w-full h-40 rounded-lg overflow-hidden mb-4 bg-zinc-200 dark:bg-zinc-800">
-                    <img
-                      src={currentAd.imageUrl}
-                      alt={currentAd.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-
-                <div className="mb-4">
-                  <h3 className="font-semibold text-lg text-zinc-800 dark:text-zinc-200 mb-1">
-                    {currentAd.title}
-                  </h3>
-                  {currentAd.description && (
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                      {currentAd.description}
-                    </p>
-                  )}
-                </div>
-
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                     {Number(currentAd.price).toFixed(2)} LKR
@@ -213,7 +195,7 @@ export default function AdsHubPage() {
                   </Button>
                 )}
 
-                {adState === "viewing" && (
+                {adState === "added" && (
                   <div className="flex flex-col items-center justify-center py-6">
                     <div className="relative w-12 h-12">
                       <div className="absolute inset-0 border-4 border-zinc-300 dark:border-zinc-600 rounded-full"></div>
@@ -279,6 +261,86 @@ export default function AdsHubPage() {
           </Card>
         )}
       </motion.div>
+
+      <AnimatePresence>
+        {adState === "viewing" && currentAd && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+            onClick={handleCloseViewing}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white dark:bg-zinc-900 rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-2 right-2 z-10 bg-white/80 dark:bg-zinc-800/80"
+                  onClick={handleCloseViewing}
+                  data-testid="button-close-ad"
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+                
+                {currentAd.imageUrl && (
+                  <div className="w-full h-64 bg-zinc-100 dark:bg-zinc-800">
+                    <img
+                      src={currentAd.imageUrl}
+                      alt={currentAd.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="p-5">
+                <h2 className="text-xl font-bold text-zinc-800 dark:text-zinc-100 mb-2">
+                  {currentAd.title}
+                </h2>
+                
+                {currentAd.description && (
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
+                    {currentAd.description}
+                  </p>
+                )}
+
+                <div className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 mb-2">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span>Cash on Delivery</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 mb-2">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span>Easy Exchange & Refund Policy</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 mb-4">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span>Island Wide Delivery</span>
+                </div>
+
+                <p className="text-2xl font-bold text-orange-500 mb-6">
+                  LKR {(Number(currentAd.price) * 82.5).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                </p>
+
+                <Button
+                  onClick={handleAddToCart}
+                  className="w-full bg-zinc-900 dark:bg-zinc-800 hover:bg-zinc-800 dark:hover:bg-zinc-700 text-white py-6"
+                  data-testid="button-add-to-cart"
+                >
+                  <ShoppingCart className="w-5 h-5 mr-2" />
+                  Add to Cart
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
