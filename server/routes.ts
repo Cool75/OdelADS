@@ -489,7 +489,7 @@ export async function registerRoutes(
     const userId = user.claims.sub;
     
     const { 
-      firstName, lastName, username, mobileNumber, 
+      firstName, lastName, username, mobileNumber, profileImageUrl,
       notificationsEnabled, language, theme,
       bankName, accountNumber, accountHolderName, branchName 
     } = req.body;
@@ -499,6 +499,7 @@ export async function registerRoutes(
     if (lastName !== undefined) updateData.lastName = lastName;
     if (username !== undefined) updateData.username = username;
     if (mobileNumber !== undefined) updateData.mobileNumber = mobileNumber;
+    if (profileImageUrl !== undefined) updateData.profileImageUrl = profileImageUrl;
     if (notificationsEnabled !== undefined) updateData.notificationsEnabled = notificationsEnabled;
     if (language !== undefined) updateData.language = language;
     if (theme !== undefined) updateData.theme = theme;

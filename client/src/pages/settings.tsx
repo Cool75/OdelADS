@@ -70,6 +70,8 @@ export default function Settings() {
   const [editValue, setEditValue] = useState("");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [showAvatarDialog, setShowAvatarDialog] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState("");
 
   const { data: userData, isLoading } = useQuery<any>({
     queryKey: ["/api/auth/user"],
@@ -132,6 +134,14 @@ export default function Settings() {
       title: "Copied",
       description: "User ID copied to clipboard.",
     });
+  };
+
+  const handleSaveAvatar = () => {
+    if (avatarUrl.trim()) {
+      updateProfileMutation.mutate({ profileImageUrl: avatarUrl.trim() });
+      setShowAvatarDialog(false);
+      setAvatarUrl("");
+    }
   };
 
   const handleDeleteAccount = () => {
@@ -245,11 +255,16 @@ export default function Settings() {
           {/* Settings List */}
           <div className="space-y-2">
             {/* Avatar */}
-            <motion.div
+            <motion.button
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.05 }}
-              className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-4"
+              onClick={() => {
+                setAvatarUrl(userData?.profileImageUrl || "");
+                setShowAvatarDialog(true);
+              }}
+              className="w-full bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-4 hover:bg-zinc-800/50 transition-all text-left"
+              data-testid="button-edit-avatar"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -258,7 +273,7 @@ export default function Settings() {
                   </div>
                   <div>
                     <p className="text-white font-medium">Avatar</p>
-                    <p className="text-sm text-zinc-400">Your profile picture</p>
+                    <p className="text-sm text-zinc-400">Tap to change profile picture</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -271,7 +286,7 @@ export default function Settings() {
                   <ChevronRight className="w-5 h-5 text-zinc-500" />
                 </div>
               </div>
-            </motion.div>
+            </motion.button>
 
             {/* Display Name */}
             <motion.div
@@ -713,6 +728,51 @@ export default function Settings() {
               data-testid="button-confirm-delete"
             >
               Delete Account
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Avatar Dialog */}
+      <Dialog open={showAvatarDialog} onOpenChange={setShowAvatarDialog}>
+        <DialogContent className="bg-zinc-900 border-zinc-800 text-white">
+          <DialogHeader>
+            <DialogTitle>Update Avatar</DialogTitle>
+            <DialogDescription className="text-zinc-400">
+              Enter an image URL for your profile picture
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex justify-center">
+              <Avatar className="w-24 h-24 border-4 border-zinc-700">
+                <AvatarImage src={avatarUrl || userData?.profileImageUrl} />
+                <AvatarFallback className="bg-zinc-700 text-white text-2xl">
+                  {firstName.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+            <Input
+              value={avatarUrl}
+              onChange={(e) => setAvatarUrl(e.target.value)}
+              placeholder="https://example.com/avatar.jpg"
+              className="bg-zinc-800 border-zinc-700 text-white"
+              data-testid="input-avatar-url"
+            />
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="ghost"
+              onClick={() => setShowAvatarDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveAvatar}
+              disabled={!avatarUrl.trim() || updateProfileMutation.isPending}
+              className="bg-orange-500 hover:bg-orange-600"
+              data-testid="button-save-avatar"
+            >
+              Save Avatar
             </Button>
           </DialogFooter>
         </DialogContent>
