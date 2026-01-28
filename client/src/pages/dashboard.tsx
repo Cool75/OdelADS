@@ -33,7 +33,7 @@ export default function Dashboard() {
   const { user, isLoading: isUserLoading } = useAuth();
   const { data: ads, isLoading: isAdsLoading } = useAds();
   const { mutate: clickAd, isPending: isClicking } = useClickAd();
-  const [activeCategory, setActiveCategory] = useState("Exclusives");
+  const [activeCategory, setActiveCategory] = useState("");
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const [, setLocation] = useLocation();
 
