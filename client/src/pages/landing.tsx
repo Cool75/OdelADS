@@ -1,13 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, ShoppingCart, Heart, User, ChevronLeft, ChevronRight, Facebook, Twitter, Instagram } from "lucide-react";
+import { ChevronLeft, ChevronRight, Facebook, Twitter, Instagram, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-
-const categories = [
-  "UNISEX", "WOMEN", "MEN", "SPORTS", "FOOTWEAR", "BAGS", 
-  "WATCHES & SUNGLASSES", "JEWELLERY", "KIDS", "HOME & LIFESTYLE"
-];
 
 const slides = [
   {
@@ -75,45 +70,32 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white text-foreground flex flex-col font-sans">
-      <header className="bg-black text-white sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-8">
-              <span className="text-3xl font-light tracking-[0.3em]">ODEL</span>
-              <nav className="hidden lg:flex items-center gap-6 text-sm font-medium">
-                <button className="hover:text-orange-500 transition-colors">Deals</button>
-                <button className="hover:text-orange-500 transition-colors">New Collection</button>
-                <button className="hover:text-orange-500 transition-colors">Shop By Brands</button>
-              </nav>
+      <header className="bg-zinc-950 text-white py-4 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 flex justify-center">
+          <div className="inline-flex items-center gap-1 bg-zinc-900 border border-zinc-800 rounded-full px-2 py-1.5">
+            <div className="flex items-center gap-2 px-3">
+              <div className="w-7 h-7 rounded-full bg-zinc-800 flex items-center justify-center">
+                <span className="text-white font-bold text-sm">O</span>
+              </div>
+              <span className="text-sm font-semibold">ODEL</span>
             </div>
-            <div className="flex items-center gap-4">
-              <Search className="h-5 w-5 cursor-pointer hover:text-orange-500 transition-colors" />
-              <div className="relative">
-                <ShoppingCart className="h-5 w-5 cursor-pointer hover:text-orange-500 transition-colors" />
-                <span className="absolute -top-2 -right-2 bg-green-500 text-[10px] w-4 h-4 rounded-full flex items-center justify-center">0</span>
-              </div>
-              <div className="relative">
-                <Heart className="h-5 w-5 cursor-pointer hover:text-orange-500 transition-colors" />
-                <span className="absolute -top-2 -right-2 bg-orange-500 text-[10px] w-4 h-4 rounded-full flex items-center justify-center">0</span>
-              </div>
-              <button onClick={handleLogin} className="hover:text-orange-500 transition-colors">
-                <User className="h-5 w-5" />
+            <nav className="hidden md:flex items-center">
+              <button className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">Features</button>
+              <button className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">Pricing</button>
+              <button className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">Docs</button>
+              <button className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">Blog</button>
+            </nav>
+            <div className="flex items-center gap-1 pl-2">
+              <button onClick={handleLogin} className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">
+                Sign In
               </button>
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-zinc-800 overflow-x-auto scrollbar-hide">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="flex items-center gap-1 py-2 text-xs font-medium whitespace-nowrap">
-              {categories.map((cat, i) => (
-                <button 
-                  key={i} 
-                  className="px-3 py-1.5 hover:bg-zinc-700 rounded transition-colors"
-                >
-                  {cat}
-                </button>
-              ))}
+              <Button 
+                onClick={handleLogin} 
+                size="sm"
+                className="rounded-full bg-white text-black hover:bg-zinc-200 font-medium px-4"
+              >
+                Get Started
+              </Button>
             </div>
           </div>
         </div>
