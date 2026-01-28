@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuery } from "@tanstack/react-query";
-import { Users, MousePointer, Wallet, DollarSign, Clock, ArrowRight, TrendingUp } from "lucide-react";
+import { Users, MousePointer, Wallet, DollarSign, Clock, ArrowRight, TrendingUp, ChevronRight } from "lucide-react";
 import { Link } from "wouter";
 
 interface AdminStats {
