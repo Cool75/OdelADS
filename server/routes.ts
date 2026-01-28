@@ -488,15 +488,26 @@ export async function registerRoutes(
     const user = req.user as any;
     const userId = user.claims.sub;
     
-    const { mobileNumber, bankName, accountNumber, accountHolderName, branchName } = req.body;
+    const { 
+      firstName, lastName, username, mobileNumber, 
+      notificationsEnabled, language, theme,
+      bankName, accountNumber, accountHolderName, branchName 
+    } = req.body;
     
-    const updated = await storage.updateUser(userId, {
-      mobileNumber,
-      bankName,
-      accountNumber,
-      accountHolderName,
-      branchName
-    });
+    const updateData: any = {};
+    if (firstName !== undefined) updateData.firstName = firstName;
+    if (lastName !== undefined) updateData.lastName = lastName;
+    if (username !== undefined) updateData.username = username;
+    if (mobileNumber !== undefined) updateData.mobileNumber = mobileNumber;
+    if (notificationsEnabled !== undefined) updateData.notificationsEnabled = notificationsEnabled;
+    if (language !== undefined) updateData.language = language;
+    if (theme !== undefined) updateData.theme = theme;
+    if (bankName !== undefined) updateData.bankName = bankName;
+    if (accountNumber !== undefined) updateData.accountNumber = accountNumber;
+    if (accountHolderName !== undefined) updateData.accountHolderName = accountHolderName;
+    if (branchName !== undefined) updateData.branchName = branchName;
+    
+    const updated = await storage.updateUser(userId, updateData);
     res.json(updated);
   });
 

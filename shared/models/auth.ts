@@ -41,6 +41,12 @@ export const users = pgTable("users", {
   
   // User Details
   mobileNumber: text("mobile_number"),
+  username: text("username"),
+  
+  // Preferences
+  notificationsEnabled: boolean("notifications_enabled").default(true),
+  language: text("language").default("en"),
+  theme: text("theme").default("dark"),
   
   // Bank Details
   bankName: text("bank_name"),
