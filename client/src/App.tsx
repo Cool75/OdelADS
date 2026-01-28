@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 
+import SplashPage from "@/pages/splash";
 import LandingPage from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import WithdrawPage from "@/pages/withdraw";
@@ -75,6 +76,24 @@ function HomePage() {
     return <Dashboard />;
   }
 
+  return <SplashPage />;
+}
+
+function WelcomePage() {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (user) {
+    return <Dashboard />;
+  }
+
   return <LandingPage />;
 }
 
@@ -82,6 +101,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={HomePage} />
+      <Route path="/welcome" component={WelcomePage} />
       
       <Route path="/dashboard">
         {() => <ProtectedRoute component={Dashboard} />}
