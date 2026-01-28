@@ -41,6 +41,7 @@ export default function Dashboard() {
   const { mutate: clickAd, isPending: isClicking } = useClickAd();
   const [activeCategory, setActiveCategory] = useState("");
   const [activeSidebar, setActiveSidebar] = useState("/");
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const [, setLocation] = useLocation();
 
@@ -96,72 +97,90 @@ export default function Dashboard() {
     <div className="min-h-screen bg-zinc-950 flex text-white font-sans">
       {/* Sidebar */}
       <motion.aside 
-        initial={{ x: -80 }}
-        animate={{ x: 0 }}
-        className="w-20 bg-zinc-900/50 backdrop-blur-xl border-r border-zinc-800/50 flex flex-col items-center py-6 fixed h-full z-50"
+        initial={{ width: 80 }}
+        animate={{ width: sidebarExpanded ? 200 : 80 }}
+        transition={{ duration: 0.3 }}
+        className="bg-zinc-900/50 backdrop-blur-xl border-r border-zinc-800/50 flex flex-col py-6 fixed h-full z-50"
       >
-        <motion.div 
+        <motion.button 
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.2 }}
-          className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center mb-8"
+          onClick={() => setSidebarExpanded(!sidebarExpanded)}
+          className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center mb-8 mx-auto cursor-pointer"
         >
           <span className="text-white font-bold text-lg">O</span>
-        </motion.div>
+        </motion.button>
 
-        <nav className="flex-1 flex flex-col items-center gap-2">
+        <nav className="flex-1 flex flex-col gap-2 px-3">
           {sidebarItems.map((item, i) => (
             <motion.button
               key={item.label}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 * i }}
-              whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => {
                 setActiveSidebar(item.path);
                 setLocation(item.path);
               }}
-              className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
+              className={`h-12 rounded-xl flex items-center gap-3 transition-all ${
+                sidebarExpanded ? "px-4" : "justify-center"
+              } ${
                 activeSidebar === item.path 
                   ? "bg-orange-500 text-white" 
                   : "text-zinc-400 hover:text-white hover:bg-zinc-800"
               }`}
               data-testid={`nav-${item.label.toLowerCase().replace(' ', '-')}`}
             >
-              <item.icon className="w-5 h-5" />
+              <item.icon className="w-5 h-5 flex-shrink-0" />
+              {sidebarExpanded && (
+                <motion.span 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-sm font-medium whitespace-nowrap"
+                >
+                  {item.label}
+                </motion.span>
+              )}
             </motion.button>
           ))}
         </nav>
 
-        <div className="mt-auto flex flex-col items-center gap-4">
+        <div className="mt-auto flex flex-col gap-2 px-3">
           <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            className="w-12 h-12 rounded-xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all"
-          >
-            <HelpCircle className="w-5 h-5" />
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleLogout}
-            className="w-12 h-12 rounded-xl flex items-center justify-center text-zinc-400 hover:text-red-400 hover:bg-zinc-800 transition-all"
+            className={`h-12 rounded-xl flex items-center gap-3 text-zinc-400 hover:text-red-400 hover:bg-zinc-800 transition-all ${
+              sidebarExpanded ? "px-4" : "justify-center"
+            }`}
             data-testid="button-logout"
           >
-            <LogOut className="w-5 h-5" />
+            <LogOut className="w-5 h-5 flex-shrink-0" />
+            {sidebarExpanded && (
+              <span className="text-sm font-medium whitespace-nowrap">Sign Out</span>
+            )}
           </motion.button>
-          <Avatar className="w-10 h-10 border-2 border-orange-500">
-            <AvatarImage src={userData.profileImageUrl} />
-            <AvatarFallback className="bg-zinc-700 text-white text-sm">
-              {firstName.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
+          <div className={`flex items-center gap-3 ${sidebarExpanded ? "px-2" : "justify-center"}`}>
+            <Avatar className="w-10 h-10 border-2 border-orange-500 flex-shrink-0">
+              <AvatarImage src={userData.profileImageUrl} />
+              <AvatarFallback className="bg-zinc-700 text-white text-sm">
+                {firstName.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            {sidebarExpanded && (
+              <span className="text-sm font-medium text-white truncate">{firstName}</span>
+            )}
+          </div>
         </div>
       </motion.aside>
 
       {/* Main Content */}
-      <main className="flex-1 ml-20 p-6 overflow-auto">
+      <motion.main 
+        animate={{ marginLeft: sidebarExpanded ? 200 : 80 }}
+        transition={{ duration: 0.3 }}
+        className="flex-1 p-6 overflow-auto"
+      >
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <motion.div 
@@ -489,7 +508,7 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-      </main>
+      </motion.main>
     </div>
   );
 }
