@@ -13,7 +13,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, X, CreditCard, ArrowLeft } from "lucide-react";
-import { Link } from "wouter";
 import {
   Dialog,
   DialogContent,
@@ -54,10 +53,10 @@ export default function AdminWithdrawals() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <Link href="/admin" className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors" data-testid="link-back-admin">
+        <button onClick={() => window.history.back()} className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors" data-testid="button-back">
           <ArrowLeft className="h-4 w-4" />
-          <span>Back to Dashboard</span>
-        </Link>
+          <span>Back</span>
+        </button>
 
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-lg bg-green-500/20 flex items-center justify-center">

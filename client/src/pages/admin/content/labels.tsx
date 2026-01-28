@@ -9,7 +9,6 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Type, Save, ArrowLeft } from "lucide-react";
-import { Link } from "wouter";
 
 export default function AdminLabels() {
   const { user } = useAuth();
@@ -60,10 +59,10 @@ export default function AdminLabels() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <Link href="/admin" className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors" data-testid="link-back-admin">
+        <button onClick={() => window.history.back()} className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors" data-testid="button-back">
           <ArrowLeft className="h-4 w-4" />
-          <span>Back to Dashboard</span>
-        </Link>
+          <span>Back</span>
+        </button>
 
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-lg bg-violet-500/20 flex items-center justify-center">
