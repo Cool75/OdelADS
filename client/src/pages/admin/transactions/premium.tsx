@@ -45,10 +45,7 @@ export default function AdminPremiumManage() {
 
   const depositMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest(`/api/users/${selectedUserId}/deposit`, {
-        method: "POST",
-        body: JSON.stringify({ amount: depositAmount })
-      });
+      return apiRequest("POST", `/api/users/${selectedUserId}/deposit`, { amount: depositAmount });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
@@ -59,10 +56,7 @@ export default function AdminPremiumManage() {
 
   const resetMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest(`/api/users/${selectedUserId}/reset`, {
-        method: "POST",
-        body: JSON.stringify({ field: resetField })
-      });
+      return apiRequest("POST", `/api/users/${selectedUserId}/reset`, { field: resetField });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
@@ -73,14 +67,11 @@ export default function AdminPremiumManage() {
 
   const restrictMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest(`/api/users/${selectedUserId}/restrict`, {
-        method: "POST",
-        body: JSON.stringify({
-          adsLimit: parseInt(restrictionData.adsLimit) || null,
-          deposit: restrictionData.deposit || null,
-          commission: restrictionData.commission || null,
-          pendingAmount: restrictionData.pendingAmount || "0"
-        })
+      return apiRequest("POST", `/api/users/${selectedUserId}/restrict`, {
+        adsLimit: parseInt(restrictionData.adsLimit) || null,
+        deposit: restrictionData.deposit || null,
+        commission: restrictionData.commission || null,
+        pendingAmount: restrictionData.pendingAmount || "0"
       });
     },
     onSuccess: () => {
@@ -92,9 +83,7 @@ export default function AdminPremiumManage() {
 
   const unrestrictMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest(`/api/users/${selectedUserId}/unrestrict`, {
-        method: "POST"
-      });
+      return apiRequest("POST", `/api/users/${selectedUserId}/unrestrict`, {});
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
@@ -104,10 +93,7 @@ export default function AdminPremiumManage() {
 
   const updateStatusMutation = useMutation({
     mutationFn: async (status: string) => {
-      return apiRequest(`/api/users/${selectedUserId}/status`, {
-        method: "PATCH",
-        body: JSON.stringify({ status })
-      });
+      return apiRequest("PATCH", `/api/users/${selectedUserId}/status`, { status });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
