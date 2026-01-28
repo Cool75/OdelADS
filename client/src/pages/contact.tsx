@@ -4,21 +4,16 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Phone, Mail, MessageCircle, Send } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
-import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 
-interface ContactInfo {
-  id: number;
-  type: string;
-  value: string;
-  label: string;
+interface ContactData {
+  [key: string]: { value: string; isActive: boolean };
 }
 
 export default function ContactPage() {
   const { isLoading: authLoading } = useAuth();
-  const [, setLocation] = useLocation();
 
-  const { data: contacts = [], isLoading: contactsLoading } = useQuery<ContactInfo[]>({
+  const { data: contactData, isLoading: contactsLoading } = useQuery<ContactData>({
     queryKey: ["/api/contact"],
   });
 
@@ -35,10 +30,12 @@ export default function ContactPage() {
     );
   }
 
-  const phoneContact = contacts.find((c) => c.type === "phone");
-  const emailContact = contacts.find((c) => c.type === "email");
-  const whatsappContact = contacts.find((c) => c.type === "whatsapp");
-  const telegramContact = contacts.find((c) => c.type === "telegram");
+  const phoneContact = contactData?.phone?.isActive ? { value: contactData.phone.value, label: "Phone" } : null;
+  const emailContact = contactData?.email?.isActive ? { value: contactData.email.value, label: "Email" } : null;
+  const whatsappContact = contactData?.whatsapp?.isActive ? { value: contactData.whatsapp.value, label: "WhatsApp" } : null;
+  const telegramContact = contactData?.telegram?.isActive ? { value: contactData.telegram.value, label: "Telegram" } : null;
+  
+  const hasAnyContact = phoneContact || emailContact || whatsappContact || telegramContact;
 
   return (
     <div className="min-h-screen bg-zinc-100 dark:bg-zinc-950">
@@ -51,7 +48,7 @@ export default function ContactPage() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setLocation("/")}
+            onClick={() => window.history.back()}
             className="text-zinc-600 dark:text-zinc-400"
             data-testid="button-back"
           >
@@ -189,7 +186,7 @@ export default function ContactPage() {
             </motion.div>
           )}
 
-          {contacts.length === 0 && (
+          {!hasAnyContact && (
             <Card className="border-2 border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900">
               <CardContent className="p-8 text-center">
                 <Phone className="w-12 h-12 text-zinc-400 mx-auto mb-4" />
