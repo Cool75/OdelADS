@@ -21,12 +21,12 @@ const sidebarItems = [
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
 
-const adCategories: { label: string; icon: LucideIcon; badge?: boolean }[] = [
-  { label: "Exclusives", icon: Gem },
-  { label: "Ad's Hub", icon: Target },
-  { label: "Payouts", icon: CircleDollarSign, badge: true },
-  { label: "Status", icon: Crown },
-  { label: "Events", icon: PartyPopper },
+const adCategories: { label: string; icon: LucideIcon; badge?: boolean; path: string }[] = [
+  { label: "Exclusives", icon: Gem, path: "/exclusives" },
+  { label: "Ad's Hub", icon: Target, path: "/ads-hub" },
+  { label: "Payouts", icon: CircleDollarSign, badge: true, path: "/withdrawals" },
+  { label: "Status", icon: Crown, path: "/status" },
+  { label: "Events", icon: PartyPopper, path: "/events" },
 ];
 
 export default function Dashboard() {
@@ -174,7 +174,7 @@ export default function Dashboard() {
                   transition={{ delay: 0.1 * i }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setActiveCategory(cat.label)}
+                  onClick={() => setLocation(cat.path)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-1.5 ${
                     activeCategory === cat.label
                       ? "bg-white text-black"

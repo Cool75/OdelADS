@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import LandingPage from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import WithdrawPage from "@/pages/withdraw";
+import ExclusivesPage from "@/pages/exclusives";
 import NotFound from "@/pages/not-found";
 
 import AdminDashboard from "@/pages/admin/dashboard";
@@ -81,6 +82,9 @@ function Router() {
       </Route>
       <Route path="/withdraw">
         {() => <ProtectedRoute component={WithdrawPage} />}
+      </Route>
+      <Route path="/exclusives">
+        {() => <ProtectedRoute component={ExclusivesPage} />}
       </Route>
 
       <Route path="/admin">
