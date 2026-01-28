@@ -250,6 +250,49 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Promo Banners - Two Side by Side */}
+        <section className="py-6 md:py-10 bg-white">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+              {/* Banner 1 */}
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="relative overflow-hidden rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 p-6 md:p-8 min-h-[200px] flex items-center"
+                data-testid="card-promo-1"
+              >
+                <div className="relative z-10">
+                  <p className="text-white/80 text-sm mb-1">LIMITED TIME OFFER</p>
+                  <h3 className="text-3xl md:text-5xl font-bold text-white mb-2">BONUS</h3>
+                  <p className="text-5xl md:text-7xl font-black text-white">25,000<span className="text-2xl md:text-3xl">LKR</span></p>
+                  <p className="text-white/80 text-xs mt-2">On Registration</p>
+                </div>
+                <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-gradient-to-l from-black/20 to-transparent" />
+              </motion.div>
+
+              {/* Banner 2 */}
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                viewport={{ once: true }}
+                className="relative overflow-hidden rounded-lg bg-gradient-to-r from-zinc-800 to-zinc-900 p-6 md:p-8 min-h-[200px] flex items-center"
+                data-testid="card-promo-2"
+              >
+                <div className="relative z-10">
+                  <p className="text-orange-500 text-sm mb-1">DAILY REWARDS</p>
+                  <h3 className="text-3xl md:text-5xl font-bold text-white mb-2">EARN UP TO</h3>
+                  <p className="text-5xl md:text-7xl font-black text-orange-500">5,000<span className="text-2xl md:text-3xl text-white">LKR</span></p>
+                  <p className="text-zinc-400 text-xs mt-2">Per Day</p>
+                </div>
+                <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-gradient-to-l from-orange-500/10 to-transparent" />
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
         {/* Stats Bar */}
         <section className="bg-zinc-900 py-6">
           <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
@@ -300,26 +343,47 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Partners Section */}
-        <section className="py-8 md:py-12 bg-zinc-800">
+        {/* Partners Section - Horizontal Scroll with Arrows */}
+        <section className="py-8 md:py-12 bg-zinc-100">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex items-center gap-2 mb-6">
-              <div className="bg-orange-500 text-white text-xs font-bold px-3 py-1">OUR PARTNERS</div>
+              <div className="bg-zinc-700 text-white text-xs font-bold px-4 py-2">PAYMENT PARTNERS</div>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {partners.map((partner, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  className="bg-white rounded-lg p-6 flex items-center justify-center h-24"
-                  data-testid={`card-partner-${index}`}
-                >
-                  <span className="text-lg font-bold text-gray-700">{partner.name}</span>
-                </motion.div>
-              ))}
+            <div className="relative">
+              {/* Left Arrow */}
+              <button
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white shadow-lg rounded-full flex items-center justify-center text-zinc-600"
+                data-testid="button-partners-prev"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              
+              {/* Scrollable Container */}
+              <div className="overflow-x-auto scrollbar-hide mx-12">
+                <div className="flex gap-4 min-w-max py-2">
+                  {partners.concat(partners).map((partner, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 10 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      viewport={{ once: true }}
+                      className="bg-white rounded-lg p-4 md:p-6 flex items-center justify-center w-40 md:w-48 h-20 md:h-24 shadow-sm flex-shrink-0"
+                      data-testid={`card-partner-${index}`}
+                    >
+                      <span className="text-base md:text-lg font-bold text-gray-700">{partner.name}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Right Arrow */}
+              <button
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white shadow-lg rounded-full flex items-center justify-center text-zinc-600"
+                data-testid="button-partners-next"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
             </div>
           </div>
         </section>
