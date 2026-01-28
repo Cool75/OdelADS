@@ -12,6 +12,7 @@ import Dashboard from "@/pages/dashboard";
 import WithdrawPage from "@/pages/withdraw";
 import ExclusivesPage from "@/pages/exclusives";
 import StatusPage from "@/pages/status";
+import AdsHubPage from "@/pages/ads-hub";
 import NotFound from "@/pages/not-found";
 
 import AdminDashboard from "@/pages/admin/dashboard";
@@ -92,6 +93,9 @@ function Router() {
       </Route>
       <Route path="/withdrawals">
         {() => <ProtectedRoute component={WithdrawPage} />}
+      </Route>
+      <Route path="/ads-hub">
+        {() => <ProtectedRoute component={AdsHubPage} />}
       </Route>
 
       <Route path="/admin">
