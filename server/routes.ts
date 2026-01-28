@@ -64,6 +64,7 @@ export async function registerRoutes(
 
     const ad = await storage.getAd(adId);
     if (!ad) return res.status(404).json({ message: "Ad not found" });
+    if (!ad.isActive) return res.status(400).json({ message: "Ad is not active" });
 
     let earning = 0;
 
@@ -77,6 +78,7 @@ export async function registerRoutes(
       earning = commission;
       
       await storage.addMilestoneReward(userId, commission);
+      await storage.addMilestoneAmount(userId, commission);
       await storage.incrementRestrictedAds(userId);
       await storage.incrementAdsCompleted(userId);
     } else {
@@ -88,6 +90,13 @@ export async function registerRoutes(
       await storage.addMilestoneAmount(userId, commission);
       await storage.incrementAdsCompleted(userId);
     }
+
+    // Record transaction
+    await storage.createAdClick({
+      userId,
+      adId,
+      earnedAmount: earning.toFixed(2)
+    });
 
     res.json({ success: true, earnings: earning.toFixed(2) });
   });
@@ -257,6 +266,200 @@ export async function registerRoutes(
     updates[field] = field.includes("Amount") || field.includes("Reward") ? "0" : 0;
     
     const updated = await storage.updateUser(targetId, updates);
+    res.json(updated);
+  });
+
+  // === CMS: SITE SETTINGS ===
+  app.get("/api/settings", async (req, res) => {
+    const settings = await storage.getSiteSettings();
+    const obj: Record<string, string> = {};
+    settings.forEach(s => { obj[s.key] = s.value || ''; });
+    res.json(obj);
+  });
+
+  app.get("/api/settings/:key", async (req, res) => {
+    const setting = await storage.getSiteSetting(req.params.key);
+    res.json(setting || { key: req.params.key, value: null });
+  });
+
+  app.post("/api/settings", isAuthenticated, async (req, res) => {
+    const user = req.user as any;
+    const dbUser = await storage.getUser(user.claims.sub);
+    if (!dbUser?.isAdmin) return res.status(403).json({ message: "Admin only" });
+
+    const { key, value } = req.body;
+    const setting = await storage.upsertSiteSetting(key, value);
+    res.json(setting);
+  });
+
+  app.post("/api/settings/bulk", isAuthenticated, async (req, res) => {
+    const user = req.user as any;
+    const dbUser = await storage.getUser(user.claims.sub);
+    if (!dbUser?.isAdmin) return res.status(403).json({ message: "Admin only" });
+
+    const { settings } = req.body;
+    const results = [];
+    for (const [key, value] of Object.entries(settings)) {
+      const s = await storage.upsertSiteSetting(key, String(value));
+      results.push(s);
+    }
+    res.json(results);
+  });
+
+  // === CMS: SLIDES ===
+  app.get("/api/slides", async (req, res) => {
+    const slides = await storage.getSlides();
+    res.json(slides);
+  });
+
+  app.post("/api/slides", isAuthenticated, async (req, res) => {
+    const user = req.user as any;
+    const dbUser = await storage.getUser(user.claims.sub);
+    if (!dbUser?.isAdmin) return res.status(403).json({ message: "Admin only" });
+
+    const slide = await storage.createSlide(req.body);
+    res.status(201).json(slide);
+  });
+
+  app.put("/api/slides/:id", isAuthenticated, async (req, res) => {
+    const user = req.user as any;
+    const dbUser = await storage.getUser(user.claims.sub);
+    if (!dbUser?.isAdmin) return res.status(403).json({ message: "Admin only" });
+
+    const slide = await storage.updateSlide(parseInt(req.params.id), req.body);
+    res.json(slide);
+  });
+
+  app.delete("/api/slides/:id", isAuthenticated, async (req, res) => {
+    const user = req.user as any;
+    const dbUser = await storage.getUser(user.claims.sub);
+    if (!dbUser?.isAdmin) return res.status(403).json({ message: "Admin only" });
+
+    await storage.deleteSlide(parseInt(req.params.id));
+    res.status(204).send();
+  });
+
+  // === CMS: CONTACT INFO ===
+  app.get("/api/contact", async (req, res) => {
+    const contacts = await storage.getContactInfos();
+    const obj: Record<string, { value: string; isActive: boolean }> = {};
+    contacts.forEach(c => { obj[c.type] = { value: c.value || '', isActive: c.isActive ?? true }; });
+    res.json(obj);
+  });
+
+  app.post("/api/contact", isAuthenticated, async (req, res) => {
+    const user = req.user as any;
+    const dbUser = await storage.getUser(user.claims.sub);
+    if (!dbUser?.isAdmin) return res.status(403).json({ message: "Admin only" });
+
+    const { type, value, isActive } = req.body;
+    const contact = await storage.upsertContactInfo(type, value, isActive);
+    res.json(contact);
+  });
+
+  // === CMS: INFO PAGES ===
+  app.get("/api/pages", async (req, res) => {
+    const pages = await storage.getInfoPages();
+    res.json(pages);
+  });
+
+  app.get("/api/pages/:slug", async (req, res) => {
+    const page = await storage.getInfoPage(req.params.slug);
+    if (!page) return res.status(404).json({ message: "Page not found" });
+    res.json(page);
+  });
+
+  app.post("/api/pages", isAuthenticated, async (req, res) => {
+    const user = req.user as any;
+    const dbUser = await storage.getUser(user.claims.sub);
+    if (!dbUser?.isAdmin) return res.status(403).json({ message: "Admin only" });
+
+    const { slug, title, content, isActive } = req.body;
+    const page = await storage.upsertInfoPage(slug, title, content, isActive);
+    res.json(page);
+  });
+
+  // === CMS: TRANSACTIONS & STATS ===
+  app.get("/api/admin/stats", isAuthenticated, async (req, res) => {
+    const user = req.user as any;
+    const dbUser = await storage.getUser(user.claims.sub);
+    if (!dbUser?.isAdmin) return res.status(403).json({ message: "Admin only" });
+
+    const stats = await storage.getAdminStats();
+    res.json(stats);
+  });
+
+  app.get("/api/admin/transactions", isAuthenticated, async (req, res) => {
+    const user = req.user as any;
+    const dbUser = await storage.getUser(user.claims.sub);
+    if (!dbUser?.isAdmin) return res.status(403).json({ message: "Admin only" });
+
+    const clicks = await storage.getAdClicks();
+    res.json(clicks);
+  });
+
+  app.get("/api/admin/transactions/:userId", isAuthenticated, async (req, res) => {
+    const user = req.user as any;
+    const dbUser = await storage.getUser(user.claims.sub);
+    if (!dbUser?.isAdmin) return res.status(403).json({ message: "Admin only" });
+
+    const clicks = await storage.getAdClicks(req.params.userId);
+    res.json(clicks);
+  });
+
+  app.get("/api/admin/deposits", isAuthenticated, async (req, res) => {
+    const user = req.user as any;
+    const dbUser = await storage.getUser(user.claims.sub);
+    if (!dbUser?.isAdmin) return res.status(403).json({ message: "Admin only" });
+
+    const deposits = await storage.getDeposits();
+    res.json(deposits);
+  });
+
+  app.post("/api/admin/deposits", isAuthenticated, async (req, res) => {
+    const user = req.user as any;
+    const dbUser = await storage.getUser(user.claims.sub);
+    if (!dbUser?.isAdmin) return res.status(403).json({ message: "Admin only" });
+
+    const { userId, amount, type, description } = req.body;
+    
+    // Create deposit record
+    const deposit = await storage.createDeposit({
+      userId,
+      amount: String(amount),
+      type: type || 'manual_add',
+      description
+    });
+
+    // Add to user balance
+    await storage.addMilestoneAmount(userId, parseFloat(amount));
+    
+    res.status(201).json(deposit);
+  });
+
+  app.get("/api/admin/commissions", isAuthenticated, async (req, res) => {
+    const user = req.user as any;
+    const dbUser = await storage.getUser(user.claims.sub);
+    if (!dbUser?.isAdmin) return res.status(403).json({ message: "Admin only" });
+
+    const commissions = await storage.getCommissions();
+    res.json(commissions);
+  });
+
+  // User profile update
+  app.patch("/api/profile", isAuthenticated, async (req, res) => {
+    const user = req.user as any;
+    const userId = user.claims.sub;
+    
+    const { mobileNumber, bankName, accountNumber, accountHolderName, branchName } = req.body;
+    
+    const updated = await storage.updateUser(userId, {
+      mobileNumber,
+      bankName,
+      accountNumber,
+      accountHolderName,
+      branchName
+    });
     res.json(updated);
   });
 
