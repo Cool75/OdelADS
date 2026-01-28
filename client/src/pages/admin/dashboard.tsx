@@ -43,189 +43,183 @@ export default function AdminDashboard() {
 
   return (
     <AdminLayout>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-blue-100 text-sm">{stats?.activeUsers || 0} active, {stats?.pendingUsers || 0} pending</p>
-                <p className="text-3xl font-bold mt-1">{stats?.totalUsers || 0}</p>
-                <p className="text-blue-100 text-xs mt-1">+12% from last week</p>
-              </div>
-              <Users className="h-10 w-10 text-blue-200" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-cyan-500 to-cyan-600 text-white border-0">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-cyan-100 text-sm">All time clicks</p>
-                <p className="text-3xl font-bold mt-1">{(stats?.totalAdClicks || 0).toLocaleString()}</p>
-                <p className="text-cyan-100 text-xs mt-1">+8% from last week</p>
-              </div>
-              <MousePointer className="h-10 w-10 text-cyan-200" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-violet-500 to-violet-600 text-white border-0">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-violet-100 text-sm">Earnings distributed</p>
-                <p className="text-3xl font-bold mt-1">LKR {parseFloat(stats?.totalEarnings || "0").toLocaleString()}</p>
-                <p className="text-violet-100 text-xs mt-1">+23% from last week</p>
-              </div>
-              <TrendingUp className="h-10 w-10 text-violet-200" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white border-0">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-emerald-100 text-sm">Active Users</p>
-                <p className="text-3xl font-bold mt-1">{stats?.activeUsers || 0}</p>
-                <p className="text-emerald-100 text-xs mt-1">67% of total</p>
-              </div>
-              <Users className="h-10 w-10 text-emerald-200" />
-            </div>
-          </CardContent>
-        </Card>
+      <div className="flex flex-col gap-1 mb-6">
+        <h1 className="text-2xl font-bold tracking-tight">Dashboard Overview</h1>
+        <p className="text-sm text-muted-foreground">Monitor your platform's performance and key metrics.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-4">
-        <Card className="bg-gradient-to-br from-amber-500 to-orange-500 text-white border-0">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="shadow-sm border-border/40">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-amber-100 text-sm font-medium">TOTAL WITHDRAW</p>
-                <p className="text-3xl font-bold mt-2">LKR {parseFloat(stats?.totalWithdrawals || "0").toLocaleString()}</p>
-                <p className="text-amber-100 text-xs mt-1">LKR {parseFloat(stats?.pendingWithdrawals || "0").toLocaleString()} pending</p>
+                <p className="text-sm font-medium text-muted-foreground">Total Users</p>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-2xl font-bold">{stats?.totalUsers || 0}</p>
+                  <span className="text-xs font-medium text-green-500">+12%</span>
+                </div>
               </div>
-              <Wallet className="h-12 w-12 text-amber-200" />
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <Users className="h-5 w-5 text-primary" />
+              </div>
+            </div>
+            <div className="mt-4 h-1 w-full bg-muted overflow-hidden rounded-full">
+              <div className="h-full bg-primary" style={{ width: '70%' }} />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-teal-500 to-cyan-500 text-white border-0">
+        <Card className="shadow-sm border-border/40">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-teal-100 text-sm font-medium">TOTAL DEPOSIT</p>
-                <p className="text-3xl font-bold mt-2">LKR {parseFloat(stats?.totalDeposits || "0").toLocaleString()}</p>
-                <p className="text-teal-100 text-xs mt-1">User balances</p>
+                <p className="text-sm font-medium text-muted-foreground">Ad Clicks</p>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-2xl font-bold">{(stats?.totalAdClicks || 0).toLocaleString()}</p>
+                  <span className="text-xs font-medium text-green-500">+8%</span>
+                </div>
               </div>
-              <DollarSign className="h-12 w-12 text-teal-200" />
+              <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center">
+                <MousePointer className="h-5 w-5 text-blue-500" />
+              </div>
+            </div>
+            <div className="mt-4 h-1 w-full bg-muted overflow-hidden rounded-full">
+              <div className="h-full bg-blue-500" style={{ width: '45%' }} />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-purple-500 to-pink-500 text-white border-0">
+        <Card className="shadow-sm border-border/40">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-purple-100 text-sm font-medium">ACTIVE USERS</p>
-                <p className="text-3xl font-bold mt-2">{stats?.activeUsers || 0}</p>
-                <p className="text-purple-100 text-xs mt-1">{stats?.totalUsers ? Math.round((stats.activeUsers / stats.totalUsers) * 100) : 0}% of total</p>
+                <p className="text-sm font-medium text-muted-foreground">Total Distributed</p>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-2xl font-bold">LKR {Math.round(parseFloat(stats?.totalEarnings || "0")).toLocaleString()}</p>
+                  <span className="text-xs font-medium text-green-500">+23%</span>
+                </div>
               </div>
-              <Users className="h-12 w-12 text-purple-200" />
+              <div className="h-10 w-10 rounded-full bg-purple-500/10 flex items-center justify-center">
+                <TrendingUp className="h-5 w-5 text-purple-500" />
+              </div>
+            </div>
+            <div className="mt-4 h-1 w-full bg-muted overflow-hidden rounded-full">
+              <div className="h-full bg-purple-500" style={{ width: '85%' }} />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm border-border/40">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Active Sessions</p>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-2xl font-bold">{stats?.activeUsers || 0}</p>
+                  <span className="text-xs font-medium text-blue-500">Live</span>
+                </div>
+              </div>
+              <div className="h-10 w-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                <Users className="h-5 w-5 text-emerald-500" />
+              </div>
+            </div>
+            <div className="mt-4 h-1 w-full bg-muted overflow-hidden rounded-full">
+              <div className="h-full bg-emerald-500" style={{ width: '60%' }} />
             </div>
           </CardContent>
         </Card>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 mt-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between gap-2">
+        <Card className="shadow-sm border-border/40">
+          <CardHeader className="flex flex-row items-center justify-between gap-2 border-b pb-4">
             <div className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-amber-500" />
-              <CardTitle className="text-lg">High Priority Actions</CardTitle>
+              <Clock className="h-5 w-5 text-primary" />
+              <CardTitle className="text-base font-semibold">Priority Pending</CardTitle>
             </div>
-            <Badge variant="secondary" className="bg-amber-500/10 text-amber-500">
-              {(stats?.pendingUsers || 0) + pendingWithdrawalsList.length} pending
+            <Badge variant="secondary" className="rounded-full px-2.5 py-0.5 bg-primary/10 text-primary border-none">
+              {(stats?.pendingUsers || 0) + pendingWithdrawalsList.length} total
             </Badge>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-amber-500/5 rounded-lg border border-amber-500/20">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
-                  <Users className="h-5 w-5 text-amber-500" />
+          <CardContent className="p-0">
+            <div className="divide-y divide-border/40">
+              <div className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                    <Users className="h-4.5 w-4.5 text-amber-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold">{stats?.pendingUsers || 0} Pending Users</p>
+                    <p className="text-xs text-muted-foreground">Identity verification required</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium">{stats?.pendingUsers || 0} Pending Users</p>
-                  <p className="text-sm text-muted-foreground">Awaiting approval</p>
-                </div>
+                <Link href="/admin/users/pending">
+                  <Button variant="outline" size="sm" className="h-8 rounded-md" data-testid="link-review-users">
+                    Manage
+                  </Button>
+                </Link>
               </div>
-              <Link href="/admin/users/pending">
-                <Button variant="ghost" size="sm" data-testid="link-review-users">
-                  Review <ArrowRight className="ml-1 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
 
-            <div className="flex items-center justify-between p-4 bg-blue-500/5 rounded-lg border border-blue-500/20">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                  <Wallet className="h-5 w-5 text-blue-500" />
+              <div className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                    <Wallet className="h-4.5 w-4.5 text-blue-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold">{pendingWithdrawalsList.length} Payout Requests</p>
+                    <p className="text-xs text-muted-foreground">Bank transfers to process</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium">{pendingWithdrawalsList.length} Withdrawal Request</p>
-                  <p className="text-sm text-muted-foreground">Pending approval</p>
-                </div>
+                <Link href="/admin/withdrawals">
+                  <Button variant="outline" size="sm" className="h-8 rounded-md" data-testid="link-review-withdrawals">
+                    Manage
+                  </Button>
+                </Link>
               </div>
-              <Link href="/admin/withdrawals">
-                <Button variant="ghost" size="sm" data-testid="link-review-withdrawals">
-                  Review <ArrowRight className="ml-1 h-4 w-4" />
-                </Button>
-              </Link>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between gap-2">
+        <Card className="shadow-sm border-border/40">
+          <CardHeader className="flex flex-row items-center justify-between gap-2 border-b pb-4">
             <div className="flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />
-              <CardTitle className="text-lg">Recent Users</CardTitle>
+              <CardTitle className="text-base font-semibold">Recent Registrations</CardTitle>
             </div>
             <Link href="/admin/users">
-              <Button variant="ghost" size="sm" data-testid="link-view-all-users">
-                View all
+              <Button variant="ghost" size="sm" className="text-xs text-muted-foreground h-8" data-testid="link-view-all-users">
+                View All
               </Button>
             </Link>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {recentUsers.map((u: any) => (
-              <div key={u.id} className="flex items-center justify-between" data-testid={`user-row-${u.id}`}>
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={u.profileImageUrl} />
-                    <AvatarFallback className="bg-primary/20 text-primary">
-                      {u.firstName?.[0] || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium">{u.firstName} {u.lastName}</p>
-                    <p className="text-xs text-muted-foreground">@{u.email?.split("@")[0]}</p>
+          <CardContent className="p-0">
+            <div className="divide-y divide-border/40">
+              {recentUsers.length > 0 ? recentUsers.map((u: any) => (
+                <div key={u.id} className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors" data-testid={`user-row-${u.id}`}>
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage src={u.profileImageUrl} />
+                      <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                        {u.firstName?.[0] || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold truncate">{u.firstName} {u.lastName}</p>
+                      <p className="text-[10px] text-muted-foreground truncate uppercase tracking-wider font-medium">{u.email?.split("@")[0]}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <p className="text-xs font-semibold">LKR {Math.round(parseFloat(u.milestoneAmount || "0")).toLocaleString()}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase font-medium">{u.status}</p>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground/40" />
                   </div>
                 </div>
-                <div className="text-right">
-                  <Badge
-                    variant={u.status === "active" ? "default" : u.status === "pending" ? "secondary" : "destructive"}
-                    className={u.status === "active" ? "bg-green-500/20 text-green-500" : ""}
-                  >
-                    {u.status}
-                  </Badge>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    LKR {parseFloat(u.milestoneAmount || "0").toLocaleString()}
-                  </p>
-                </div>
-              </div>
-            ))}
+              )) : (
+                <div className="p-8 text-center text-sm text-muted-foreground">No recent users found.</div>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>

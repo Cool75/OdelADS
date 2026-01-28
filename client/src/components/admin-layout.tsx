@@ -187,12 +187,15 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     <div className="flex flex-col h-full">
       <div className="p-4 border-b border-border/20">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-emerald-400 flex items-center justify-center">
-            <Megaphone className="h-5 w-5 text-white" />
+          <div className="w-8 h-8 rounded bg-primary flex items-center justify-center p-1">
+            <svg fill="white" viewBox="0 0 147 70" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+              <path d="M56 50.2031V14H70V60.1562C70 65.5928 65.5928 70 60.1562 70C57.5605 70 54.9982 68.9992 53.1562 67.1573L0 14H19.7969L56 50.2031Z" />
+              <path d="M147 56H133V23.9531L100.953 56H133V70H96.6875C85.8144 70 77 61.1856 77 50.3125V14H91V46.1562L123.156 14H91V0H127.312C138.186 0 147 8.81439 147 19.6875V56Z" />
+            </svg>
           </div>
           <div>
-            <h1 className="text-lg font-bold text-foreground">RATING</h1>
-            <p className="text-xs text-muted-foreground">ADS ADMIN</p>
+            <h1 className="text-sm font-bold tracking-tight text-foreground uppercase">Sentinel</h1>
+            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">Admin Portal</p>
           </div>
         </div>
       </div>
