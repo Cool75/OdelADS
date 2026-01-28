@@ -270,6 +270,21 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
+          {/* Promo Video */}
+          <Card className="bg-zinc-900 border-zinc-700 border-2 rounded-2xl overflow-hidden">
+            <CardContent className="p-0">
+              <video 
+                src={settings?.promoVideoUrl || "/videos/promo-video.mp4"}
+                autoPlay 
+                muted 
+                loop 
+                playsInline
+                className="w-full h-auto max-h-80 object-cover"
+                data-testid="video-promo"
+              />
+            </CardContent>
+          </Card>
+
           {/* Flash Sale Countdown */}
           <Card className="bg-zinc-900 border-orange-500/50 border-2 rounded-2xl">
             <CardContent className="p-6">

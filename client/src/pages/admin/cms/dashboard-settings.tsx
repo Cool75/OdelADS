@@ -17,6 +17,7 @@ export default function DashboardSettingsPage() {
   });
 
   const [formData, setFormData] = useState({
+    promoVideoUrl: "",
     marqueeText: "",
     flashSaleTitle: "",
     flashSaleSubtitle: "",
@@ -33,6 +34,7 @@ export default function DashboardSettingsPage() {
   useEffect(() => {
     if (settings) {
       setFormData({
+        promoVideoUrl: settings.promoVideoUrl || "/videos/promo-video.mp4",
         marqueeText: settings.marqueeText || "EARN MORE TODAY >>> CLICK ADS & WIN >>> RATING ADS",
         flashSaleTitle: settings.flashSaleTitle || "Flash",
         flashSaleSubtitle: settings.flashSaleSubtitle || "Sale",
@@ -89,6 +91,37 @@ export default function DashboardSettingsPage() {
             Save All Settings
           </Button>
         </div>
+
+        {/* Promo Video */}
+        <Card className="bg-zinc-900 border-zinc-800">
+          <CardHeader>
+            <CardTitle className="text-orange-500">Promo Video</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label>Video URL</Label>
+              <Input
+                value={formData.promoVideoUrl}
+                onChange={(e) => handleChange("promoVideoUrl", e.target.value)}
+                placeholder="/videos/promo-video.mp4 or external URL"
+                className="bg-zinc-800 border-zinc-700"
+                data-testid="input-promo-video"
+              />
+              <p className="text-xs text-zinc-500 mt-1">Enter a URL to a video file (MP4 recommended)</p>
+            </div>
+            {formData.promoVideoUrl && (
+              <div className="mt-2">
+                <Label className="mb-2 block">Preview</Label>
+                <video 
+                  src={formData.promoVideoUrl}
+                  controls
+                  muted
+                  className="w-full max-w-md rounded-lg h-48 object-cover"
+                />
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Marquee Banner */}
         <Card className="bg-zinc-900 border-zinc-800">
