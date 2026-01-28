@@ -197,7 +197,9 @@ export default function Dashboard() {
             
             {/* Category Tabs */}
             <div className="flex items-center gap-2 flex-wrap justify-end flex-1">
-              {adCategories.map((cat, i) => (
+              {adCategories
+                .filter(cat => cat.label !== "Payouts" || canRequestPayout)
+                .map((cat, i) => (
                 <motion.button
                   key={cat.label}
                   initial={{ opacity: 0, y: -10 }}
