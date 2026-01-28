@@ -18,7 +18,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Star, Search, DollarSign, RotateCcw, AlertTriangle, Plus, Shield } from "lucide-react";
+import { Star, Search, DollarSign, RotateCcw, AlertTriangle, Plus, Shield, UserCheck, UserX, UserCog } from "lucide-react";
 import { useLocation } from "wouter";
 
 export default function AdminPremiumManage() {
@@ -99,6 +99,19 @@ export default function AdminPremiumManage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
       toast({ title: "Restriction removed" });
+    }
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async (status: string) => {
+      return apiRequest(`/api/users/${selectedUserId}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ status })
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      toast({ title: "User status updated" });
     }
   });
 
@@ -257,7 +270,51 @@ export default function AdminPremiumManage() {
                 </CardContent>
               </Card>
 
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid md:grid-cols-3 gap-6">
+                {/* Status Change Card */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <UserCog className="h-5 w-5 text-purple-500" />
+                      Change Status
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <Button
+                        variant={selectedUser.status === "active" ? "default" : "outline"}
+                        className="w-full justify-start"
+                        onClick={() => updateStatusMutation.mutate("active")}
+                        disabled={updateStatusMutation.isPending || selectedUser.status === "active"}
+                        data-testid="button-status-active"
+                      >
+                        <UserCheck className="mr-2 h-4 w-4 text-green-500" />
+                        Set Active
+                      </Button>
+                      <Button
+                        variant={selectedUser.status === "pending" ? "default" : "outline"}
+                        className="w-full justify-start"
+                        onClick={() => updateStatusMutation.mutate("pending")}
+                        disabled={updateStatusMutation.isPending || selectedUser.status === "pending"}
+                        data-testid="button-status-pending"
+                      >
+                        <UserCog className="mr-2 h-4 w-4 text-amber-500" />
+                        Set Pending
+                      </Button>
+                      <Button
+                        variant={selectedUser.status === "frozen" ? "destructive" : "outline"}
+                        className="w-full justify-start"
+                        onClick={() => updateStatusMutation.mutate("frozen")}
+                        disabled={updateStatusMutation.isPending || selectedUser.status === "frozen"}
+                        data-testid="button-status-frozen"
+                      >
+                        <UserX className="mr-2 h-4 w-4 text-red-500" />
+                        Freeze User
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
