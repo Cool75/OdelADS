@@ -70,29 +70,31 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white text-foreground flex flex-col font-sans">
-      <header className="bg-zinc-950 text-white py-4 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 flex justify-center">
-          <div className="inline-flex items-center gap-1 bg-zinc-900 border border-zinc-800 rounded-full px-2 py-1.5">
-            <div className="flex items-center gap-2 px-3">
-              <div className="w-7 h-7 rounded-full bg-zinc-800 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">O</span>
+      <header className="bg-zinc-950 text-white sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-8">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center">
+                  <span className="text-white font-bold">O</span>
+                </div>
+                <span className="text-xl font-semibold">ODEL</span>
               </div>
-              <span className="text-sm font-semibold">ODEL</span>
+              <nav className="hidden md:flex items-center gap-1">
+                <button className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">Features</button>
+                <button className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">Pricing</button>
+                <button className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">Docs</button>
+                <button className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">Blog</button>
+              </nav>
             </div>
-            <nav className="hidden md:flex items-center">
-              <button className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">Features</button>
-              <button className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">Pricing</button>
-              <button className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">Docs</button>
-              <button className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">Blog</button>
-            </nav>
-            <div className="flex items-center gap-1 pl-2">
+            <div className="flex items-center gap-2">
               <button onClick={handleLogin} className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">
                 Sign In
               </button>
               <Button 
                 onClick={handleLogin} 
                 size="sm"
-                className="rounded-full bg-white text-black hover:bg-zinc-200 font-medium px-4"
+                className="rounded-full bg-white text-black hover:bg-zinc-200 font-medium px-5"
               >
                 Get Started
               </Button>
